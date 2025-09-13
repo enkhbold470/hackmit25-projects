@@ -88,9 +88,16 @@ export default function TransactionsTab() {
 
       const { sessionId } = await sessionResponse.json();
 
+      const clientId = process.env.NEXT_PUBLIC_KNOT_CLIENT_ID || '';
+      console.log('Frontend client ID:', clientId);
+
+      if (!clientId) {
+        throw new Error('NEXT_PUBLIC_KNOT_CLIENT_ID environment variable not set');
+      }
+
       knotapi.open({
         sessionId,
-        clientId: process.env.NEXT_PUBLIC_KNOT_CLIENT_ID || '',
+        clientId,
         environment: 'development',
         product: 'transaction_link',
         merchantIds: [merchantId],

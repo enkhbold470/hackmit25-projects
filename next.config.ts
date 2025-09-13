@@ -3,6 +3,11 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  turbopack: {
+
+  },
+  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
+
   
 };
 

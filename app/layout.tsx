@@ -24,7 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+        <head>
+        <link rel="manifest" href="/site.webmanifest" />
+      </head>
+      <body>
         {children}
       </body>
     </html>

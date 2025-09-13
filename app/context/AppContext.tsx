@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface Transaction {
   id: string;
@@ -36,128 +36,162 @@ interface AppState {
 
 interface AppContextType {
   state: AppState;
+  loading: boolean;
+  userId: string | null;
+  teamId: string | null;
   addTransaction: (restaurant: string, amount: number) => void;
   updateCharacterStatus: (status: 'powered' | 'neutral' | 'weakened') => void;
   addMessage: (message: string, type: 'success' | 'warning' | 'info') => void;
+  refreshData: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  // Use the seeded user ID from our database (you might want to make this dynamic in a real app)
+  const [userId] = useState<string>('257d2fc7-e7e3-45e9-afa5-efaa6127dfd6'); // From seeded data
+  const [teamId] = useState<string>('9010d194-d7d8-44b2-9055-3d83eda5a5de'); // From seeded data
+  const [loading, setLoading] = useState(true);
+
   const [state, setState] = useState<AppState>({
     characterHealth: 85,
     characterStatus: 'neutral',
-    questEndDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000), // 12 days from now
+    questEndDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
     streak: 3,
-    transactions: [
-      {
-        id: '1',
-        restaurant: 'Pizza Palace',
-        amount: 24.99,
-        date: new Date('2024-01-15')
-      },
-      {
-        id: '2',
-        restaurant: 'Burger Junction',
-        amount: 18.50,
-        date: new Date('2024-01-12')
-      },
-      {
-        id: '3',
-        restaurant: 'Sushi Express',
-        amount: 32.75,
-        date: new Date('2024-01-10')
-      },
-      {
-        id: '4',
-        restaurant: 'Taco Time',
-        amount: 15.25,
-        date: new Date('2024-01-08')
-      },
-      {
-        id: '5',
-        restaurant: 'Chinese Garden',
-        amount: 28.90,
-        date: new Date('2024-01-05')
-      }
-    ],
-    teamMembers: [
-      { id: '1', name: 'You', avatar: '😊', status: 'neutral' },
-      { id: '2', name: 'Dave', avatar: '😵‍💫', status: 'weakened' },
-      { id: '3', name: 'Sarah', avatar: '💪', status: 'powered' },
-      { id: '4', name: 'Mike', avatar: '😊', status: 'neutral' }
-    ],
-    messages: [
-      {
-        id: '1',
-        message: 'Congrats on your 3-day streak! 🔥',
-        type: 'success',
-        timestamp: new Date()
-      },
-      {
-        id: '2',
-        message: 'Dave ordered from Pizza Palace. His character is weakened!',
-        type: 'warning',
-        timestamp: new Date(Date.now() - 86400000)
-      },
-      {
-        id: '3',
-        message: 'No orders from the team yesterday. Great job!',
-        type: 'success',
-        timestamp: new Date(Date.now() - 2 * 86400000)
-      }
-    ],
+    transactions: [],
+    teamMembers: [],
+    messages: [],
     teamPower: 78
   });
 
-  const addTransaction = (restaurant: string, amount: number) => {
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
-      restaurant,
-      amount,
-      date: new Date()
-    };
+  // Fetch all app data from backend APIs
+  const refreshData = async () => {
+    if (!userId || !teamId) return;
 
-    setState(prev => ({
-      ...prev,
-      transactions: [newTransaction, ...prev.transactions],
-      characterHealth: Math.max(prev.characterHealth - 10, 0),
-      characterStatus: 'weakened' as const,
-      teamPower: Math.max(prev.teamPower - 5, 0),
-      streak: 0
-    }));
+    try {
+      setLoading(true);
 
-    addMessage(`You ordered from ${restaurant}. Your character is weakened!`, 'warning');
+      // Fetch character data
+      const characterRes = await fetch(`/api/character?userId=${userId}`);
+      const characterData = await characterRes.json();
+
+      // Fetch team data
+      const teamRes = await fetch(`/api/team?teamId=${teamId}`);
+      const teamData = await teamRes.json();
+
+      // Fetch messages
+      const messagesRes = await fetch(`/api/messages?userId=${userId}&limit=10`);
+      const messagesData = await messagesRes.json();
+
+      // Fetch quest data
+      const questRes = await fetch(`/api/quest?teamId=${teamId}`);
+      const questData = await questRes.json();
+
+      // Fetch transactions
+      const transactionsRes = await fetch(`/api/transactions?userId=${userId}&limit=20`);
+      const transactionsData = await transactionsRes.json();
+
+      setState({
+        characterHealth: characterData.health,
+        characterStatus: characterData.status,
+        streak: characterData.streak,
+        questEndDate: new Date(questData.endDate),
+        teamMembers: teamData.members,
+        teamPower: teamData.power,
+        messages: messagesData.messages,
+        transactions: transactionsData.transactions,
+      });
+    } catch (error) {
+      console.error('Error fetching app data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateCharacterStatus = (status: 'powered' | 'neutral' | 'weakened') => {
-    setState(prev => ({
-      ...prev,
-      characterStatus: status,
-      characterHealth: status === 'powered' ? 100 : status === 'weakened' ? Math.max(prev.characterHealth - 10, 30) : prev.characterHealth
-    }));
+  // Load data on component mount
+  useEffect(() => {
+    refreshData();
+  }, [userId, teamId]);
+
+  const addTransaction = async (restaurant: string, amount: number) => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          restaurant,
+          amount,
+        }),
+      });
+
+      if (response.ok) {
+        // Refresh data to get updated state
+        await refreshData();
+      }
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    }
   };
 
-  const addMessage = (message: string, type: 'success' | 'warning' | 'info') => {
-    const newMessage: MessageItem = {
-      id: Date.now().toString(),
-      message,
-      type,
-      timestamp: new Date()
-    };
+  const updateCharacterStatus = async (status: 'powered' | 'neutral' | 'weakened') => {
+    if (!userId) return;
 
-    setState(prev => ({
-      ...prev,
-      messages: [newMessage, ...prev.messages.slice(0, 9)] // Keep only last 10 messages
-    }));
+    try {
+      const response = await fetch(`/api/character?userId=${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (response.ok) {
+        await refreshData();
+      }
+    } catch (error) {
+      console.error('Error updating character status:', error);
+    }
+  };
+
+  const addMessage = async (message: string, type: 'success' | 'warning' | 'info') => {
+    if (!userId) return;
+
+    try {
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          message,
+          type,
+        }),
+      });
+
+      if (response.ok) {
+        await refreshData();
+      }
+    } catch (error) {
+      console.error('Error adding message:', error);
+    }
   };
 
   return (
     <AppContext.Provider value={{
       state,
+      loading,
+      userId,
+      teamId,
       addTransaction,
       updateCharacterStatus,
-      addMessage
+      addMessage,
+      refreshData
     }}>
       {children}
     </AppContext.Provider>

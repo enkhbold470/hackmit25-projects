@@ -1,0 +1,5 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="32" fill="#4CAF50"/>
+  <text x="96" y="110" text-anchor="middle" font-size="80" fill="white">🍽️</text>
+  <text x="96" y="150" text-anchor="middle" font-size="20" fill="white" font-family="Arial, sans-serif">FoodApp</text>
+</svg>

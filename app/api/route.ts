@@ -4,10 +4,15 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   const body = await request.json();
 
-  const res = await fetch('https://knot.tunnel.tel/transactions/sync', {
+  // Basic auth with client_id:secret encoded in base64
+  const clientId = process.env.KNOT_CLIENT_ID as string;
+  const secret = process.env.KNOT_SECRET as string;
+  const KNOT_SECRET = Buffer.from(`${clientId}:${secret}`).toString('base64');
+
+  const res = await fetch('https://development.knotapi.com/transactions/sync', {
     method: 'POST',
     headers: {
-      'Authorization': `Basic ${process.env.KNOT_API_KEY}`,
+      'Authorization': `Basic ${KNOT_SECRET}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),

@@ -5,12 +5,12 @@
     "start_url": "/",
     "icons": [
         {
-            "src": "base.jpg",
+            "src": "/base.jpg",
             "sizes": "192x192",
             "type": "image/jpg"
         },
         {
-            "src": "base.jpg",
+            "src": "/base.jpg",
             "sizes": "512x512",
             "type": "image/jpg"               
         }

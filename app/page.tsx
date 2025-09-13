@@ -8,6 +8,7 @@ import QuestTab from './components/tabs/QuestTab';
 import UserTab from './components/tabs/UserTab';
 
 export default function Home() {
+
   const [activeTab, setActiveTab] = useState('main');
 
   const renderActiveTab = () => {
@@ -31,6 +32,7 @@ export default function Home() {
         {renderActiveTab()}
       </main>
       <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
     </div>
   );
 }

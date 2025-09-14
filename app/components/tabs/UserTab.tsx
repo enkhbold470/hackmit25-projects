@@ -33,7 +33,7 @@ export default function UserTab() {
 
   const handleAbout = () => {
     // In a real app, show about dialog or navigate to about page
-    alert('FoodApp v1.0\n\nGameify reducing food delivery orders with friends!');
+    alert('SkipIt v1.0\n\nGameify reducing food delivery orders with friends!');
   };
 
   const handleLogOut = () => {
@@ -77,7 +77,7 @@ export default function UserTab() {
 
         <MenuItem
           icon={<Info size={24} />}
-          label="About FoodApp"
+          label="About SkipIt"
           onClick={handleAbout}
         />
 
@@ -91,7 +91,7 @@ export default function UserTab() {
       {/* App Version */}
       <div className="text-center mt-8 pt-4 border-t border-gray-200">
         <p className="text-xs text-gray-500">
-          FoodApp v1.0.0
+          SkipIt v1.0.0
         </p>
       </div>
     </div>

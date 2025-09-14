@@ -43,69 +43,41 @@ function CountdownTimer({ endDate }: CountdownTimerProps) {
   }, [endDate]);
 
   return (
-    <div className="bg-gradient-to-b from-green-50 to-emerald-100 border-2 border-green-700 rounded-lg p-6 my-6 shadow-lg relative overflow-hidden">
-      {/* Nature texture overlay */}
-      <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-green-200 via-transparent to-emerald-300" />
-      
-      {/* Decorative corner flourishes */}
-      <div className="absolute top-2 left-2 text-green-700 text-lg opacity-60">🍃</div>
-      <div className="absolute top-2 right-2 text-green-700 text-lg opacity-60">🍃</div>
-      <div className="absolute bottom-2 left-2 text-green-700 text-lg opacity-60">🍃</div>
-      <div className="absolute bottom-2 right-2 text-green-700 text-lg opacity-60">🍃</div>
-      
+    <div className="bg-primary/10 border border-primary rounded-2xl p-6 my-6 shadow-sm">
       {/* Title */}
-      <div className="text-center mb-6 relative z-10">
-        <h3 className="text-2xl font-serif font-bold text-green-900 mb-1">
+      <div className="text-center mb-6">
+        <h3 className="text-2xl font-bold text-primary mb-4">
           The Quest Awaits
         </h3>
-        <div className="text-sm text-green-700 font-medium tracking-wide">
-          Time Until Adventure
+      </div>
+
+      {/* Timer display - seamless */}
+      <div className="text-center mb-6">
+        <div className="inline-flex items-center gap-2 text-4xl font-bold text-primary">
+          <span>{String(timeLeft.days).padStart(2, '0')}</span>
+          <span className="text-primary/60">:</span>
+          <span>{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span className="text-primary/60">:</span>
+          <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span className="text-primary/60">:</span>
+          <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
         </div>
-        {isUrgent && (
-          <div className="mt-2 text-red-700 font-bold text-sm animate-pulse">
-            ⚠ The hour draws near! ⚠
-          </div>
-        )}
-      </div>
-      
-      {/* Timer display */}
-      <div className="grid grid-cols-4 gap-4 text-center relative z-10">
-        {[
-          { value: timeLeft.days, label: 'Days', unit: 'd' },
-          { value: timeLeft.hours, label: 'Hours', unit: 'h' },
-          { value: timeLeft.minutes, label: 'Minutes', unit: 'm' },
-          { value: timeLeft.seconds, label: 'Seconds', unit: 's' }
-        ].map((item, index) => (
-          <div key={index} className="bg-white/90 border border-green-600 rounded-md p-3 shadow-sm hover:shadow-md transition-shadow">
-            <div className={`text-3xl font-bold mb-1 font-serif ${
-              isUrgent && item.unit === 's' 
-                ? 'text-red-800 animate-pulse' 
-                : 'text-green-900'
-            }`}>
-              {String(item.value).padStart(2, '0')}
-            </div>
-            <div className="text-xs font-medium text-green-700 uppercase tracking-wider">
-              {item.label}
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {/* Bottom decorative element */}
-      <div className="mt-6 text-center relative z-10">
-        <div className="inline-flex items-center gap-2 text-green-700 opacity-70">
-          <span className="text-sm">⚔</span>
-          <div className="h-px bg-green-600 w-16"></div>
-          <span className="text-lg">🐉</span>
-          <div className="h-px bg-green-600 w-16"></div>
-          <span className="text-sm">⚔</span>
+        <div className="flex justify-center gap-8 mt-2 text-sm text-primary/70">
+          <span>DAYS</span>
+          <span>HOURS</span>
+          <span>MINUTES</span>
+          <span>SECONDS</span>
         </div>
-        {isUrgent && (
-          <div className="mt-3 inline-block px-4 py-2 bg-red-100 border border-red-400 rounded-md">
-            <span className="text-red-800 font-bold text-sm">Prepare for Battle!</span>
-          </div>
-        )}
       </div>
+
+      {/* Centered Prepare for Battle button */}
+      {isUrgent && (
+        <div className="text-center">
+          <div className="inline-block px-6 py-3 bg-primary text-white rounded-xl font-bold">
+            Prepare for Battle!
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -129,8 +101,10 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
   if (isQuestComplete) {
     return (
       <div className="bg-card rounded-2xl p-8 text-center shadow-sm">
-        <div className="text-8xl mb-4">
-          {questResult === 'victory' ? '🏆' : '💀'}
+        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
+          <div className={`text-4xl font-bold text-white`}>
+            {questResult === 'victory' ? '✓' : '✗'}
+          </div>
         </div>
         <h2 className={`text-3xl font-bold mb-4 ${
           questResult === 'victory' ? 'text-primary' : 'text-secondary'
@@ -187,7 +161,7 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
 
       {/* Battle effects */}
       <div className="text-center mt-6">
-        <div className="text-2xl">⚔️ ⚡ 🛡️</div>
+        <div className="h-px bg-primary/20 w-24 mx-auto"></div>
       </div>
     </div>
   );
@@ -220,15 +194,15 @@ export default function QuestTab() {
       />
 
  {!isQuestComplete && (
-        <CountdownTimer endDate={new Date(Date.now() + 1 * 1 * 60 * 60 * 1000)} />
+        <CountdownTimer endDate={new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)} />
       )}
       {!isQuestComplete && (
-        <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
+        <div className="mt-6 bg-primary/10 rounded-xl p-4 border border-primary/20">
           <div className="text-center">
-            <p className="text-sm text-blue-800 font-medium mb-2">
-              💡 Quest Tip
+            <p className="text-sm text-primary font-medium mb-2">
+              Quest Tip
             </p>
-            <p className="text-xs text-blue-700">
+            <p className="text-xs text-primary/80">
               Every delivery order weakens your team. Work together to avoid ordering and defeat the boss!
             </p>
           </div>

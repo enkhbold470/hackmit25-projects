@@ -141,6 +141,22 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase())
+      .join('')
+      .slice(0, 2); // Take only first 2 initials
+  };
+
+  const getCircleBackground = (status: string) => {
+    switch (status) {
+      case 'powered': return 'bg-primary';
+      case 'weakened': return 'bg-secondary';
+      default: return 'bg-gray-400';
+    }
+  };
+
   return (
     <div className="bg-card rounded-2xl p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
@@ -152,9 +168,9 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
         {members?.map((member) => (
           <div
             key={member.id}
-            className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg transition-all ${getStatusColor(member.status)}`}
+            className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold transition-all ${getCircleBackground(member.status)}`}
           >
-            {member.avatar}
+            {getInitials(member.name)}
           </div>
         ))}
       </div>

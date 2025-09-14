@@ -3,13 +3,8 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {
-
-  },
-  devIndicators: false
+  devIndicators: false,
   // allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
-
-  
 };
 
 export default withPWA({

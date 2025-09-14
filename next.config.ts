@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
   turbopack: {
 
   },
-  allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
+  devIndicators: false
+  // allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
 
   
 };

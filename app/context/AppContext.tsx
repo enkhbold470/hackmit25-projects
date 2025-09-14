@@ -65,6 +65,8 @@ interface AppContextType {
   updateCharacterStatus: (status: 'powered' | 'neutral' | 'weakened') => void;
   addMessage: (message: string, type: 'success' | 'warning' | 'info') => void;
   refreshData: () => Promise<void>;
+  loadTransactions: () => Promise<void>;
+  clearTransactions: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -86,7 +88,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     teamPower: 78
   });
 
-  // Fetch all app data from backend APIs
+  // Fetch all app data from backend APIs (excluding transactions)
   const refreshData = useCallback(async () => {
     if (!userId || !teamId) return;
 
@@ -109,11 +111,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const questRes = await fetch(`/api/quest?teamId=${teamId}`);
       const questData = await questRes.json();
 
-      // Fetch transactions
-      const transactionsRes = await fetch(`/api/transactions?userId=${userId}&limit=20`);
-      const transactionsData = await transactionsRes.json();
-
-      setState({
+      setState(prevState => ({
+        ...prevState,
         characterHealth: characterData.health,
         characterStatus: characterData.status,
         streak: characterData.streak,
@@ -121,14 +120,38 @@ export function AppProvider({ children }: { children: ReactNode }) {
         teamMembers: teamData.members,
         teamPower: teamData.power,
         messages: messagesData.messages,
-        transactions: transactionsData.transactions,
-      });
+      }));
     } catch (error) {
       console.error('Error fetching app data:', error);
     } finally {
       setLoading(false);
     }
   }, [userId, teamId]);
+
+  // Separate function to load transactions only when needed
+  const loadTransactions = useCallback(async () => {
+    if (!userId) return;
+
+    try {
+      const transactionsRes = await fetch(`/api/transactions?userId=${userId}&limit=20`);
+      const transactionsData = await transactionsRes.json();
+
+      setState(prevState => ({
+        ...prevState,
+        transactions: transactionsData.transactions || [],
+      }));
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  }, [userId]);
+
+  // Function to clear transactions
+  const clearTransactions = useCallback(() => {
+    setState(prevState => ({
+      ...prevState,
+      transactions: [],
+    }));
+  }, []);
 
   // Load data on component mount
   useEffect(() => {
@@ -152,8 +175,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
 
       if (response.ok) {
-        // Refresh data to get updated state
+        // Refresh data and reload transactions to get updated state
         await refreshData();
+        await loadTransactions();
       }
     } catch (error) {
       console.error('Error adding transaction:', error);
@@ -213,7 +237,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addTransaction,
       updateCharacterStatus,
       addMessage,
-      refreshData
+      refreshData,
+      loadTransactions,
+      clearTransactions
     }}>
       {children}
     </AppContext.Provider>

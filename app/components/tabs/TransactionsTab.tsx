@@ -150,7 +150,7 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 }
 
 export default function TransactionsTab() {
-  const { state, userId, refreshData } = useApp();
+  const { state, userId, refreshData, loadTransactions, clearTransactions } = useApp();
   const { transactions } = state;
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [lastConnectionAttempt, setLastConnectionAttempt] = useState<number>(0);
@@ -332,6 +332,8 @@ export default function TransactionsTab() {
 
               console.log("🔄 Refreshing UI data...");
               await refreshData();
+              console.log("🔄 Loading transactions...");
+              await loadTransactions();
               console.log("✅ UI data refreshed");
             } else {
               const errorText = await syncResponse.text();

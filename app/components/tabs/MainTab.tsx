@@ -1,15 +1,18 @@
 'use client';
 
-import { Flame, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Flame, Users, Plus } from 'lucide-react';
 import { useApp, MessageItem, TeamMember } from '../../context/AppContext';
 import Image from 'next/image';
+import QuestCreationPopup from '../QuestCreationPopup';
 
 interface CharacterStatusCardProps {
   characterState: 'powered' | 'neutral' | 'weakened';
   health: number;
+  onCreateQuest?: () => void;
 }
 
-function CharacterStatusCard({ characterState, health }: CharacterStatusCardProps) {
+function CharacterStatusCard({ characterState, health, onCreateQuest }: CharacterStatusCardProps) {
   const getCharacterEmoji = () => {
     const validStates = ['powered', 'neutral', 'weakened'];
     if (validStates.includes(characterState)) {
@@ -34,7 +37,18 @@ function CharacterStatusCard({ characterState, health }: CharacterStatusCardProp
   };
 
   return (
-    <div className="bg-card rounded-2xl p-6 mb-4 shadow-sm">
+    <div className="bg-card rounded-2xl p-6 mb-4 shadow-sm relative">
+      {/* Create Quest Button */}
+      {onCreateQuest && (
+        <button
+          onClick={onCreateQuest}
+          className="absolute top-4 right-4 w-8 h-8 bg-white border-2 border-primary rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
+          title="Create New Quest"
+        >
+          <Plus size={16} />
+        </button>
+      )}
+
       <div className="text-center mb-4">
         <div className="text-6xl mb-2">{getCharacterEmoji()}</div>
         <h3 className="font-semibold text-lg">Your Character</h3>
@@ -208,6 +222,7 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
 
 export default function MainTab() {
   const { state } = useApp();
+  const [isQuestPopupOpen, setIsQuestPopupOpen] = useState(false);
 
   const daysRemaining = (state.questEndDate && !isNaN(state.questEndDate.getTime()))
     ? Math.ceil((state.questEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -216,7 +231,11 @@ export default function MainTab() {
 
   return (
     <div className="p-4 pb-20">
-      <CharacterStatusCard characterState={state.characterStatus} health={state.characterHealth} />
+      <CharacterStatusCard
+        characterState={state.characterStatus}
+        health={state.characterHealth}
+        onCreateQuest={() => setIsQuestPopupOpen(true)}
+      />
       <DailyMessagesCard messages={state.messages} />
       <QuestProgressCard
         daysRemaining={daysRemaining}
@@ -224,6 +243,13 @@ export default function MainTab() {
         progress={progress}
       />
       <TeamStatusCard members={state.teamMembers} teamPower={state.teamPower} />
+
+      {/* Quest Creation Popup */}
+      <QuestCreationPopup
+        isOpen={isQuestPopupOpen}
+        onClose={() => setIsQuestPopupOpen(false)}
+        availableTeammates={state.teamMembers}
+      />
     </div>
   );
 }

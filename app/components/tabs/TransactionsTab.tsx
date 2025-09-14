@@ -2,53 +2,14 @@
 
 import { useApp, Transaction } from '../../context/AppContext';
 import { useState, useEffect } from 'react';
-import { Truck } from 'lucide-react';
+import { Truck, CreditCard, TrendingUp } from 'lucide-react';
 import KnotapiJS from 'knotapi-js';
-
-interface KnotAPIConfig {
-  sessionId: string;
-  clientId: string;
-  environment: 'development' | 'production' | 'sandbox';
-  product: string;
-  merchantIds: number[];
-  entryPoint: string;
-  useCategories: boolean;
-  useSearch: boolean;
-  onSuccess: (product: string, merchant: string) => void;
-  onError: (product: string, errorCode: string, message: string) => void;
-  onExit: () => void;
-}
-
-interface TransactionItemProps {
-  transaction: Transaction;
-}
-
-function TransactionItem({ transaction }: TransactionItemProps) {
-  return (
-    <div className="bg-card rounded-xl p-4 shadow-sm border border-gray-100">
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <h4 className="font-semibold text-foreground mb-1">
-            {transaction.restaurant}
-          </h4>
-          <p className="text-sm text-gray-500">
-            {transaction.date.toLocaleDateString('en-US', {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })}
-          </p>
-        </div>
-        <div className="text-right">
-          <span className="text-lg font-semibold text-foreground">
-            ${transaction.amount.toFixed(2)}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
+import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { TransactionItem } from './shared/TransactionItem';
+import { KnotAPIConfig } from './types';
 
 export default function TransactionsTab() {
   const { state, userId, refreshData } = useApp();
@@ -137,52 +98,62 @@ export default function TransactionsTab() {
 
   return (
     <div className="p-4 pb-20">
-      <div className="mb-6">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Transactions</h2>
-            <p className="text-gray-600 text-sm">
-              Your food delivery orders during this quest
-            </p>
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-6 w-6 text-blue-500" />
+                Transactions
+              </CardTitle>
+              <p className="text-muted-foreground text-sm mt-1">
+                Your food delivery orders during this quest
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => connectMerchant(19, 'DoorDash')}
+                disabled={isConnecting !== null}
+                className="bg-red-500 hover:bg-red-600 text-white"
+                size="sm"
+              >
+                {isConnecting === 'DoorDash' ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  'DoorDash'
+                )}
+              </Button>
+              <Button
+                onClick={() => connectMerchant(36, 'UberEats')}
+                disabled={isConnecting !== null}
+                className="bg-black hover:bg-gray-800 text-white"
+                size="sm"
+              >
+                {isConnecting === 'UberEats' ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  'UberEats'
+                )}
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => connectMerchant(19, 'DoorDash')}
-              disabled={isConnecting !== null}
-              className="flex items-center justify-center w-12 h-12 rounded-xl bg-red-500 hover:bg-red-600 disabled:bg-gray-300 transition-colors shadow-sm"
-              title="Connect DoorDash"
-            >
-              {isConnecting === 'DoorDash' ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <Truck className="w-6 h-6 text-white" />
-              )}
-            </button>
-            <button
-              onClick={() => connectMerchant(36, 'UberEats')}
-              disabled={isConnecting !== null}
-              className="flex items-center justify-center w-12 h-12 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-300 transition-colors shadow-sm"
-              title="Connect Uber Eats"
-            >
-              {isConnecting === 'UberEats' ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <span className="text-white font-bold text-lg">U</span>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardHeader>
+      </Card>
 
       {transactions.length > 0 && (
-        <div className="bg-primary/10 rounded-xl p-4 mb-6 border border-primary/20">
-          <div className="text-center">
-            <p className="text-sm text-gray-600 mb-1">Total Spent This Quest</p>
-            <p className="text-2xl font-bold text-primary">
-              ${totalAmount.toFixed(2)}
-            </p>
-          </div>
-        </div>
+        <Card className="mb-6 bg-primary/5 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <p className="text-sm text-muted-foreground">Total Spent This Quest</p>
+              </div>
+              <Badge variant="outline" className="text-2xl font-bold text-primary py-2 px-4">
+                ${totalAmount.toFixed(2)}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <div className="space-y-3">
@@ -191,15 +162,17 @@ export default function TransactionsTab() {
             <TransactionItem key={transaction.id} transaction={transaction} />
           ))
         ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">
-              No Transactions Yet!
-            </h3>
-            <p className="text-gray-600">
-              You haven&apos;t ordered any food delivery during this quest. Keep it up!
-            </p>
-          </div>
+          <Card>
+            <CardContent className="text-center py-12">
+              <div className="text-6xl mb-4">🎉</div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                No Transactions Yet!
+              </h3>
+              <p className="text-muted-foreground">
+                You haven&apos;t ordered any food delivery during this quest. Keep it up!
+              </p>
+            </CardContent>
+          </Card>
         )}
       </div>
     </div>

@@ -6,10 +6,11 @@ const nextConfig: NextConfig = {
   turbopack: {
 
   },
-  devIndicators: false
+  devIndicators: false,
   // allowedDevOrigins: ['local-origin.dev', '*.local-origin.dev'],
-
-  
+images: {
+    unoptimized: true,
+  },
 };
 
 export default withPWA({

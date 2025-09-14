@@ -1,27 +1,47 @@
 'use client';
 
-import { Settings, Info, LogOut, ChevronRight } from 'lucide-react';
+import { Settings, Info, LogOut, User, Shield, HelpCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { MenuItem } from './shared/MenuItem';
+import { useApp } from '../../context/AppContext';
 
-interface MenuItemProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-}
-
-function MenuItem({ icon, label, onClick }: MenuItemProps) {
+/**
+ * UserProfile component for displaying user information
+ */
+function UserProfile() {
+  const { state, userId } = useApp();
+  
   return (
-    <button
-      onClick={onClick}
-      className="w-full bg-card rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors"
-    >
-      <div className="flex items-center gap-3">
-        <div className="text-primary">
-          {icon}
+    <Card className="mb-6">
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage 
+              src={`https://pickeanu.com/500?random=${userId}`} 
+              alt="User Avatar"
+            />
+            <AvatarFallback>
+              <User className="h-8 w-8" />
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-foreground">Player</h2>
+            <p className="text-sm text-muted-foreground mb-2">Level {Math.floor(state.characterHealth / 10) + 1} Warrior</p>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="text-xs">
+                {state.streak} day streak
+              </Badge>
+              <Badge variant={state.characterStatus === 'powered' ? 'default' : state.characterStatus === 'weakened' ? 'destructive' : 'secondary'} className="text-xs">
+                {state.characterStatus}
+              </Badge>
+            </div>
+          </div>
         </div>
-        <span className="font-medium text-foreground">{label}</span>
-      </div>
-      <ChevronRight size={20} className="text-gray-400" />
-    </button>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -36,6 +56,16 @@ export default function UserTab() {
     alert('FoodApp v1.0\n\nGameify reducing food delivery orders with friends!');
   };
 
+  const handlePrivacy = () => {
+    // In a real app, navigate to privacy policy
+    alert('Privacy Policy coming soon!');
+  };
+
+  const handleHelp = () => {
+    // In a real app, navigate to help center
+    alert('Help Center coming soon!');
+  };
+
   const handleLogOut = () => {
     // In a real app, handle logout
     if (confirm('Are you sure you want to log out?')) {
@@ -43,64 +73,46 @@ export default function UserTab() {
     }
   };
 
-  // Import useApp from context
-  // eslint-disable-next-line
-  // @ts-ignore
-  const { state } = require('../../context/AppContext').useApp();
-
   return (
     <div className="p-4 pb-20">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Account</h2>
-        <p className="text-gray-600 text-sm">
-          Manage your FoodApp settings and account
-        </p>
-      </div>
-
-      {/* User Profile Summary */}
-      <div className="bg-card rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
-        <div className="text-center">
-          <div className="mb-3">
-            <img
-              src={`/imgs/01-${state?.characterStatus || 'neutral'}.png`}
-              alt="User Character"
-              className="mx-auto"
-              width={150}
-              height={150}
-            />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-1">Welcome!</h3>
-          <p className="text-gray-600 text-sm">Keep fighting the good fight!</p>
-        </div>
-      </div>
-
-      {/* Menu Items */}
-      <div className="space-y-3">
-        <MenuItem
-          icon={<Settings size={24} />}
-          label="Settings"
-          onClick={handleSettings}
-        />
-
-        <MenuItem
-          icon={<Info size={24} />}
-          label="About FoodApp"
-          onClick={handleAbout}
-        />
-
-        <MenuItem
-          icon={<LogOut size={24} />}
-          label="Log Out"
-          onClick={handleLogOut}
-        />
-      </div>
-
-      {/* App Version */}
-      <div className="text-center mt-8 pt-4 border-t border-gray-200">
-        <p className="text-xs text-gray-500">
-          FoodApp v1.0.0
-        </p>
-      </div>
+      <UserProfile />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Account & Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <MenuItem
+            icon={<Settings size={20} />}
+            label="Settings"
+            onClick={handleSettings}
+          />
+          
+          <MenuItem
+            icon={<Shield size={20} />}
+            label="Privacy Policy"
+            onClick={handlePrivacy}
+          />
+          
+          <MenuItem
+            icon={<HelpCircle size={20} />}
+            label="Help Center"
+            onClick={handleHelp}
+          />
+          
+          <MenuItem
+            icon={<Info size={20} />}
+            label="About"
+            onClick={handleAbout}
+          />
+          
+          <MenuItem
+            icon={<LogOut size={20} />}
+            label="Log Out"
+            onClick={handleLogOut}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }

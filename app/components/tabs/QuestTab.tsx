@@ -1,75 +1,61 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useApp, TeamMember } from '../../context/AppContext';
+import { Sword, Shield, Zap, Users, Target, Clock } from 'lucide-react';
 import Image from 'next/image';
-interface CountdownTimerProps {
-  endDate: Date;
-}
+import { useApp, TeamMember } from '../../context/AppContext';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CountdownTimer } from './shared/CountdownTimer';
 
-function CountdownTimer({ endDate }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = endDate.getTime() - now;
-
-      if (distance > 0) {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000)
-        });
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [endDate]);
+function QuestProgressCard() {
+  const progress = 65; // Example progress
+  const timeLeft = "2h 15m";
 
   return (
-    <div className="bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-2xl p-6 mb-6 border border-primary/30">
-      <h3 className="text-center text-lg font-semibold text-foreground mb-4">
-        Time Until Boss Fight
-      </h3>
-      <div className="grid grid-cols-4 gap-2 text-center">
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.days}</div>
-          <div className="text-xs text-gray-600">DAYS</div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5 text-blue-500" />
+            Daily Quest Progress
+          </CardTitle>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            {timeLeft} left
+          </Badge>
         </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.hours}</div>
-          <div className="text-xs text-gray-600">HRS</div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <div className="flex justify-between text-sm mb-2">
+            <span className="text-muted-foreground">Resist Food Delivery</span>
+            <span className="font-medium">{progress}%</span>
+          </div>
+          <Progress value={progress} className="h-3" />
         </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.minutes}</div>
-          <div className="text-xs text-gray-600">MIN</div>
+        
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-green-600">8</div>
+            <div className="text-xs text-muted-foreground">Meals Resisted</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-blue-600">12</div>
+            <div className="text-xs text-muted-foreground">Hours Strong</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-purple-600">3</div>
+            <div className="text-xs text-muted-foreground">Streak Days</div>
+          </div>
         </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.seconds}</div>
-          <div className="text-xs text-gray-600">SEC</div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-
-interface BattleSceneProps {
-  members: TeamMember[];
-  isQuestComplete: boolean;
-  questResult?: 'victory' | 'defeat';
-}
-
-function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps) {
+function BattleScene({ members, isQuestComplete, questResult }: { members: TeamMember[]; isQuestComplete: boolean; questResult?: 'victory' | 'defeat' }) {
   const getCharacterClass = (status: string) => {
     switch (status) {
       case 'powered': return 'scale-110 brightness-110';
@@ -101,41 +87,104 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
     );
   }
 
+  const getBattleStatusColor = (status: string) => {
+    switch (status) {
+      case 'powered': return 'border-green-500 bg-green-100';
+      case 'weakened': return 'border-red-500 bg-red-100';
+      default: return 'border-yellow-500 bg-yellow-100';
+    }
+  };
+
   return (
-    <div className="bg-gradient-to-b from-red-900/20 to-gray-900/20 rounded-2xl p-6 shadow-sm">
-      {/* Boss at the top */}
-      <div className="text-center mb-8">
-        <div className="text-8xl mb-2 animate-pulse">
-          <Image src="/boss-imgs/1.jpg" alt="Takeout Titan" className="mx-auto rounded-full" width={250} height={250} />
-
+    <Card className="bg-gradient-to-b from-red-900/10 to-orange-900/10 border-red-500/30">
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center gap-2">
+          <Sword className="h-6 w-6 text-red-500" />
+          {isQuestComplete ? 'Battle Complete!' : 'Preparing for Battle'}
+        </CardTitle>
+        {questResult && (
+          <Badge 
+            variant={questResult === 'victory' ? 'default' : 'destructive'}
+            className="text-lg py-1 px-3"
+          >
+            {questResult === 'victory' ? '🎉 Victory!' : '💀 Defeat!'}
+          </Badge>
+        )}
+      </CardHeader>
+      <CardContent>
+        {/* Boss Image */}
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <Image
+              src="/boss-imgs/1.jpg"
+              alt="Boss Enemy"
+              width={200}
+              height={200}
+              className="rounded-xl shadow-lg"
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+            />
+            <Badge className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">
+              💀
+            </Badge>
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-red-600 mb-1">Takeout Titan</h3>
-        <p className="text-sm text-gray-600">The Final Boss</p>
-      </div>
 
-      {/* Battle ground separator */}
-      <div className="border-t-2 border-dashed border-gray-400 mb-8 opacity-50"></div>
-
-      {/* Team at the bottom */}
-      <div className="text-center">
-        <h4 className="text-lg font-semibold text-foreground mb-4">Your Team</h4>
-        <div className="flex justify-center gap-4 flex-wrap">
-          {members.map((member) => (
-            <div key={member.id} className="text-center">
-              <div className={`text-4xl mb-2 transition-all ${getCharacterClass(member.status)}`}>
-                {member.avatar}
-              </div>
-              <p className="text-xs text-gray-600 font-medium">{member.name}</p>
+        {/* Team vs Boss */}
+        <div className="grid grid-cols-3 gap-4 items-center">
+          {/* Team Side */}
+          <div className="text-center">
+            <h4 className="font-semibold mb-3 text-blue-600 flex items-center justify-center gap-1">
+              <Users className="h-4 w-4" />
+              Your Team
+            </h4>
+            <div className="flex justify-center gap-2 flex-wrap">
+              {members.map((member) => (
+                <Avatar key={member.id} className={`h-12 w-12 border-2 ${getBattleStatusColor(member.status)}`}>
+                  <AvatarImage 
+                    src={`https://pickeanu.com/500?random=${member.id}`} 
+                    alt={member.name}
+                  />
+                  <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Battle effects */}
-      <div className="text-center mt-6">
-        <div className="text-2xl">⚔️ ⚡ 🛡️</div>
-      </div>
-    </div>
+          {/* VS */}
+          <div className="text-center">
+            <Badge variant="outline" className="text-2xl font-bold text-red-600 py-2 px-4">
+              VS
+            </Badge>
+          </div>
+
+          {/* Boss Side */}
+          <div className="text-center">
+            <h4 className="font-semibold mb-3 text-red-600 flex items-center justify-center gap-1">
+              <Shield className="h-4 w-4" />
+              Food Boss
+            </h4>
+            <div className="text-4xl">🍔</div>
+          </div>
+        </div>
+
+        {isQuestComplete && (
+          <Card className="mt-6">
+            <CardContent className="pt-4">
+              <h4 className="font-semibold mb-2 flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Battle Results
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {questResult === 'victory' 
+                  ? 'Your team successfully resisted the temptation of food delivery! Everyone gains power.' 
+                  : 'The food boss was too strong this time. Regroup and try again!'}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -160,6 +209,10 @@ export default function QuestTab() {
       {!isQuestComplete && (
         <CountdownTimer endDate={questEndDate} />
       )}
+
+      <div className="mb-6">
+        <QuestProgressCard />
+      </div>
 
       <BattleScene
         members={teamMembers}

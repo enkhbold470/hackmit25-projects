@@ -14,6 +14,7 @@ function CountdownTimer({ endDate }: CountdownTimerProps) {
     minutes: 0,
     seconds: 0
   });
+  const [isUrgent, setIsUrgent] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -21,14 +22,20 @@ function CountdownTimer({ endDate }: CountdownTimerProps) {
       const distance = endDate.getTime() - now;
 
       if (distance > 0) {
-        setTimeLeft({
+        const newTimeLeft = {
           days: Math.floor(distance / (1000 * 60 * 60 * 24)),
           hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
           minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
           seconds: Math.floor((distance % (1000 * 60)) / 1000)
-        });
+        };
+        setTimeLeft(newTimeLeft);
+        
+        // Make it urgent when less than 1 hour remaining
+        const totalMinutes = newTimeLeft.days * 24 * 60 + newTimeLeft.hours * 60 + newTimeLeft.minutes;
+        setIsUrgent(totalMinutes < 60);
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsUrgent(true);
       }
     }, 1000);
 
@@ -36,27 +43,68 @@ function CountdownTimer({ endDate }: CountdownTimerProps) {
   }, [endDate]);
 
   return (
-    <div className="bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-2xl p-6 mb-6 border border-primary/30">
-      <h3 className="text-center text-lg font-semibold text-foreground mb-4">
-        Time Until Boss Fight
-      </h3>
-      <div className="grid grid-cols-4 gap-2 text-center">
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.days}</div>
-          <div className="text-xs text-gray-600">DAYS</div>
+    <div className="bg-gradient-to-b from-green-50 to-emerald-100 border-2 border-green-700 rounded-lg p-6 my-6 shadow-lg relative overflow-hidden">
+      {/* Nature texture overlay */}
+      <div className="absolute inset-0 opacity-20 bg-gradient-to-br from-green-200 via-transparent to-emerald-300" />
+      
+      {/* Decorative corner flourishes */}
+      <div className="absolute top-2 left-2 text-green-700 text-lg opacity-60">🍃</div>
+      <div className="absolute top-2 right-2 text-green-700 text-lg opacity-60">🍃</div>
+      <div className="absolute bottom-2 left-2 text-green-700 text-lg opacity-60">🍃</div>
+      <div className="absolute bottom-2 right-2 text-green-700 text-lg opacity-60">🍃</div>
+      
+      {/* Title */}
+      <div className="text-center mb-6 relative z-10">
+        <h3 className="text-2xl font-serif font-bold text-green-900 mb-1">
+          The Quest Awaits
+        </h3>
+        <div className="text-sm text-green-700 font-medium tracking-wide">
+          Time Until Adventure
         </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.hours}</div>
-          <div className="text-xs text-gray-600">HRS</div>
+        {isUrgent && (
+          <div className="mt-2 text-red-700 font-bold text-sm animate-pulse">
+            ⚠ The hour draws near! ⚠
+          </div>
+        )}
+      </div>
+      
+      {/* Timer display */}
+      <div className="grid grid-cols-4 gap-4 text-center relative z-10">
+        {[
+          { value: timeLeft.days, label: 'Days', unit: 'd' },
+          { value: timeLeft.hours, label: 'Hours', unit: 'h' },
+          { value: timeLeft.minutes, label: 'Minutes', unit: 'm' },
+          { value: timeLeft.seconds, label: 'Seconds', unit: 's' }
+        ].map((item, index) => (
+          <div key={index} className="bg-white/90 border border-green-600 rounded-md p-3 shadow-sm hover:shadow-md transition-shadow">
+            <div className={`text-3xl font-bold mb-1 font-serif ${
+              isUrgent && item.unit === 's' 
+                ? 'text-red-800 animate-pulse' 
+                : 'text-green-900'
+            }`}>
+              {String(item.value).padStart(2, '0')}
+            </div>
+            <div className="text-xs font-medium text-green-700 uppercase tracking-wider">
+              {item.label}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Bottom decorative element */}
+      <div className="mt-6 text-center relative z-10">
+        <div className="inline-flex items-center gap-2 text-green-700 opacity-70">
+          <span className="text-sm">⚔</span>
+          <div className="h-px bg-green-600 w-16"></div>
+          <span className="text-lg">🐉</span>
+          <div className="h-px bg-green-600 w-16"></div>
+          <span className="text-sm">⚔</span>
         </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.minutes}</div>
-          <div className="text-xs text-gray-600">MIN</div>
-        </div>
-        <div className="bg-card rounded-lg p-3">
-          <div className="text-2xl font-bold text-primary">{timeLeft.seconds}</div>
-          <div className="text-xs text-gray-600">SEC</div>
-        </div>
+        {isUrgent && (
+          <div className="mt-3 inline-block px-4 py-2 bg-red-100 border border-red-400 rounded-md">
+            <span className="text-red-800 font-bold text-sm">Prepare for Battle!</span>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -157,9 +205,7 @@ export default function QuestTab() {
         </p>
       </div>
 
-      {!isQuestComplete && (
-        <CountdownTimer endDate={questEndDate} />
-      )}
+     
 
       <BattleScene
         members={teamMembers}
@@ -167,6 +213,9 @@ export default function QuestTab() {
         questResult={questResult}
       />
 
+ {!isQuestComplete && (
+        <CountdownTimer endDate={questEndDate} />
+      )}
       {!isQuestComplete && (
         <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">
           <div className="text-center">

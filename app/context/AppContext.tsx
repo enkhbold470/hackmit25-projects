@@ -156,7 +156,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Load data on component mount
   useEffect(() => {
     refreshData();
-  }, [userId, teamId, refreshData]);
+    loadTransactions();
+  }, [userId, teamId, refreshData, loadTransactions]);
 
   const addTransaction = async (restaurant: string, amount: number) => {
     if (!userId) return;

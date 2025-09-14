@@ -123,7 +123,7 @@ export function generateRestaurantName(cuisineType: string, seed: string): strin
     'Fusion': ['Mix & Match', 'Fusion Table', 'WorldWide Kitchen', 'Global Bites']
   };
 
-  const options = names[cuisineType] || names['American'];
+  const options = names[cuisineType as keyof typeof names] || names['American'];
   const index = Math.abs(seed.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % options.length;
   return options[index];
 }

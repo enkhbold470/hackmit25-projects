@@ -2,6 +2,7 @@
 
 import { Flame, Users } from 'lucide-react';
 import { useApp, MessageItem, TeamMember } from '../../context/AppContext';
+import Image from 'next/image';
 
 interface CharacterStatusCardProps {
   characterState: 'powered' | 'neutral' | 'weakened';
@@ -157,6 +158,14 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
     }
   };
 
+  const getCharacterClass = (status: string) => {
+    switch (status) {
+      case 'powered': return 'scale-110 brightness-110';
+      case 'weakened': return 'scale-90 opacity-60 grayscale';
+      default: return '';
+    }
+  };
+
   return (
     <div className="bg-card rounded-2xl p-4 shadow-sm">
       <div className="flex items-center gap-2 mb-3">
@@ -166,11 +175,17 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
 
       <div className="flex justify-center gap-2 mb-4 flex-wrap">
         {members?.map((member) => (
-          <div
-            key={member.id}
-            className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold transition-all ${getCircleBackground(member.status)}`}
-          >
-            {getInitials(member.name)}
+          <div key={member.id} className="text-center">
+            <div className={`mb-2 transition-all ${getCharacterClass(member.status)}`}>
+              <Image
+                src={`/imgs/01-${member.status}.png`}
+                alt={`${member.name} - ${member.status}`}
+                width={60}
+                height={60}
+                className="rounded-full mx-auto"
+              />
+            </div>
+            <p className="text-xs text-gray-600 font-medium">{member.name}</p>
           </div>
         ))}
       </div>

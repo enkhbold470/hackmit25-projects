@@ -13,7 +13,7 @@ function TabButton({ icon, label, isActive, onClick }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center py-2 px-3 min-h-[60px] transition-colors cursor-pointer transform transition-transform duration-200 hover:scale-110 ${
+      className={`flex flex-col items-center justify-center py-2 px-3 transition-colors cursor-pointer transform transition-transform duration-200 hover:scale-110 ${
         isActive
           ? 'text-primary'
           : 'text-gray-500 hover:text-foreground'
@@ -34,7 +34,7 @@ interface BottomNavigationProps {
 
 export default function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-2 py-5 z-99">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-2 z-99">
       <div className="flex justify-around max-w-md mx-auto">
         <TabButton
           icon={<Home size={24} />}

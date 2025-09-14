@@ -1,13 +1,34 @@
 "use client";
 
-import { useApp, Transaction } from "../../context/AppContext";
+import { useApp, Transaction, Product, Restaurant } from "../../context/AppContext";
 import { useState, useEffect } from "react";
+import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
+interface ProductItemProps {
+  product: Product;
+}
+
+function ProductItem({ product }: ProductItemProps) {
+  return (
+    <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg">
+      <div className="flex-1">
+        <h6 className="font-medium text-sm text-foreground">{product.name}</h6>
+        <p className="text-xs text-gray-500">Qty: {product.quantity} × ${product.unitPrice.toFixed(2)}</p>
+      </div>
+      <div className="text-right">
+        <span className="font-semibold text-foreground">${product.price.toFixed(2)}</span>
+      </div>
+    </div>
+  );
+}
+
 function TransactionItem({ transaction }: TransactionItemProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const getMerchantInfo = (transaction: Transaction) => {
     if (transaction.merchantId === 19 || transaction.merchantName === 'DoorDash') {
       return {
@@ -34,40 +55,96 @@ function TransactionItem({ transaction }: TransactionItemProps) {
 
   const merchantInfo = getMerchantInfo(transaction);
 
+  const hasProducts = transaction.products && transaction.products.length > 0;
+
   return (
-    <div className={`rounded-xl p-4 shadow-sm border ${merchantInfo.color}`}>
-      <div className="flex justify-between items-start">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            {merchantInfo.logo && (
-              <img
-                src={merchantInfo.logo}
-                alt={merchantInfo.name}
-                className="w-5 h-5 object-cover rounded"
-              />
-            )}
-            <span className={`text-xs font-medium px-2 py-1 rounded-full ${merchantInfo.color} ${merchantInfo.textColor}`}>
-              {merchantInfo.name}
-            </span>
-          </div>
-          <h4 className="font-semibold text-foreground mb-1">
-            {transaction.restaurant}
-          </h4>
-          <p className="text-sm text-gray-500">
-            {new Date(transaction.date).toLocaleDateString().slice(0, 10)}
-          </p>
-        </div>
-        <div className="text-right">
-          <span className="text-lg font-semibold text-foreground">
-            ${transaction.amount.toFixed(2)}
-          </span>
-          {transaction.status && (
-            <p className="text-xs text-gray-400 mt-1 capitalize">
-              {transaction.status.toLowerCase()}
+    <div className={`rounded-xl shadow-sm border ${merchantInfo.color} transition-all duration-200`}>
+      {/* Main transaction card */}
+      <div
+        className={`p-4 ${hasProducts ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+        onClick={() => hasProducts && setIsExpanded(!isExpanded)}
+      >
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              {merchantInfo.logo && (
+                <img
+                  src={merchantInfo.logo}
+                  alt={merchantInfo.name}
+                  className="w-5 h-5 object-cover rounded"
+                />
+              )}
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${merchantInfo.color} ${merchantInfo.textColor}`}>
+                {merchantInfo.name}
+              </span>
+              {transaction.restaurantInfo?.cuisineType && (
+                <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                  {transaction.restaurantInfo.cuisineType}
+                </span>
+              )}
+            </div>
+            <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2">
+              {transaction.restaurant}
+              {hasProducts && (
+                <span className="text-gray-400">
+                  {isExpanded ? (
+                    <ChevronDownIcon className="w-4 h-4" />
+                  ) : (
+                    <ChevronRightIcon className="w-4 h-4" />
+                  )}
+                </span>
+              )}
+            </h4>
+            <p className="text-sm text-gray-500">
+              {new Date(transaction.date).toLocaleDateString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </p>
-          )}
+            {hasProducts && (
+              <p className="text-xs text-gray-500 mt-1">
+                {transaction.products!.length} item{transaction.products!.length !== 1 ? 's' : ''}
+                {!isExpanded && ' • Click to view details'}
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <span className="text-lg font-semibold text-foreground">
+              ${transaction.amount.toFixed(2)}
+            </span>
+            {transaction.status && (
+              <p className="text-xs text-gray-400 mt-1 capitalize">
+                {transaction.status.toLowerCase()}
+              </p>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Expandable products section */}
+      {isExpanded && hasProducts && (
+        <div className="border-t border-gray-200 bg-gray-50/50">
+          <div className="p-4">
+            <h5 className="font-medium text-foreground mb-3 flex items-center gap-2">
+              <span>Order Items</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                {transaction.products!.length} items
+              </span>
+            </h5>
+            <div className="space-y-2">
+              {transaction.products!.map((product, index) => (
+                <ProductItem key={`${product.id}-${index}`} product={product} />
+              ))}
+            </div>
+            <div className="flex justify-between items-center mt-4 pt-3 border-t border-gray-200">
+              <span className="font-medium text-gray-600">Total</span>
+              <span className="font-bold text-lg text-foreground">${transaction.amount.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -331,32 +408,6 @@ export default function TransactionsTab() {
                   className="w-full h-full object-cover rounded-xl"
                 />
               )}
-            </button>
-            {/* Debug/Test button */}
-            <button
-              onClick={async () => {
-                console.log('🗋 Testing transaction sync and refresh...');
-                // First test the sync endpoint
-                try {
-                  const response = await fetch('/api/test-sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId })
-                  });
-                  const result = await response.json();
-                  console.log('🗋 Test sync result:', result);
-
-                  // Then refresh the UI data
-                  await refreshData();
-                  console.log('✅ Data refreshed successfully');
-                } catch (error) {
-                  console.error('❌ Test failed:', error);
-                }
-              }}
-              className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors shadow-sm border border-blue-200"
-              title="Test Sync (Debug)"
-            >
-              🗋
             </button>
           </div>
         </div>

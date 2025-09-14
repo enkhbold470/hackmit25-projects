@@ -14,17 +14,19 @@ datasource db {
 }
 
 model Order {
-  id          String   @id @default(uuid())
-  externalId  String   @unique
-  dateTime    DateTime
-  url         String
-  orderStatus String
-  subTotal    Float
-  total       Float
-  currency    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  externalId   String   @unique
+  dateTime     DateTime
+  url          String
+  orderStatus  String
+  subTotal     Float
+  total        Float
+  currency     String
+  restaurantId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
+  restaurant       Restaurant?       @relation(fields: [restaurantId], references: [id])
   paymentMethods   PaymentMethod[]
   priceAdjustments PriceAdjustment[]
   orderProducts    OrderProduct[]
@@ -88,6 +90,18 @@ model ProductEligibility {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, eligibility])
+}
+
+model Restaurant {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  cuisineType String?
+  logo        String?
+  merchantId  Int?     // 19 for DoorDash, 36 for UberEats
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders Order[]
 }
 
 model Transaction {

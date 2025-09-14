@@ -1,6 +1,7 @@
 // Test endpoint to debug transaction sync with sample UberEats data
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { detectRestaurant, generateRestaurantName } from '../../utils/restaurantDetection';
 
 const prisma = new PrismaClient();
 
@@ -10,7 +11,7 @@ export async function POST(request: Request) {
 
   console.log('🧪 Test sync endpoint called with userId:', userId);
 
-  // Sample UberEats transaction data from your file
+  // Complete sample UberEats transaction data from your file
   const sampleTransactions = [
     {
       "externalId": "synthetic-1",
@@ -64,6 +65,306 @@ export async function POST(request: Request) {
           "quantity": 2,
           "price": 59.8,
           "eligibility": null
+        },
+        {
+          "externalId": "f035d4a3-4826-4fb9-9cb3-f5e5a0b36d05",
+          "name": "Essentia Ionized Alkaline Water, 33.8 Oz",
+          "url": null,
+          "quantity": 1,
+          "price": 6.98,
+          "eligibility": null
+        },
+        {
+          "externalId": "62b8b723-29fa-484b-b647-6aa9a50fee1c",
+          "name": "10 pc. Chicken McNuggets\u00ae Meal",
+          "url": null,
+          "quantity": 1,
+          "price": 12.59,
+          "eligibility": null
+        },
+        {
+          "externalId": "1ced0ca7-fda1-496d-ac1c-8bb1df165fa2",
+          "name": "Groovy Fries",
+          "url": null,
+          "quantity": 1,
+          "price": 4.5,
+          "eligibility": null
+        },
+        {
+          "externalId": "44a9c0c6-104e-406a-bc1d-25d679c6874c",
+          "name": "Essentia Ionized Alkaline Water, 33.8 Oz",
+          "url": null,
+          "quantity": 1,
+          "price": 6.98,
+          "eligibility": null
+        }
+      ]
+    },
+    {
+      "externalId": "synthetic-2",
+      "dateTime": "1727319375340",
+      "url": "https://www.ubereats.com/orders/54eeb3c8-89e2-46fd-a407-c79f7c09d553",
+      "orderStatus": "COMPLETED",
+      "paymentMethods": [
+        {
+          "externalId": null,
+          "type": "CARD",
+          "brand": null,
+          "lastFour": "2975",
+          "transactionAmount": 169.71
+        }
+      ],
+      "price": {
+        "subTotal": 149.74,
+        "adjustments": [
+          {
+            "type": "TAX",
+            "label": "Tax",
+            "amount": 11.98
+          },
+          {
+            "type": "TIP",
+            "label": "Tip",
+            "amount": 5.0
+          },
+          {
+            "type": "FEE",
+            "label": "Service Fee",
+            "amount": 2.99
+          }
+        ],
+        "total": 169.71,
+        "currency": "USD"
+      },
+      "products": [
+        {
+          "externalId": "0107ea0a-8ae1-4509-b734-01f85df62ed7",
+          "name": "Pad Thai",
+          "url": null,
+          "quantity": 3,
+          "price": 89.7,
+          "eligibility": null
+        },
+        {
+          "externalId": "3262deed-d4ae-4613-8fee-785eb82682f0",
+          "name": "Dirty Dr Pepper\u00ae",
+          "url": null,
+          "quantity": 2,
+          "price": 7.78,
+          "eligibility": null
+        },
+        {
+          "externalId": "f7eb0862-663b-4a85-913b-dcf249e476f0",
+          "name": "Thai Fried Rice",
+          "url": null,
+          "quantity": 1,
+          "price": 29.9,
+          "eligibility": null
+        },
+        {
+          "externalId": "93a89dbf-cba4-44e6-a354-52e039aa2cf8",
+          "name": "Medium Vanilla Shake",
+          "url": null,
+          "quantity": 2,
+          "price": 22.36,
+          "eligibility": null
+        }
+      ]
+    },
+    {
+      "externalId": "synthetic-3",
+      "dateTime": "1757213775340",
+      "url": "https://www.ubereats.com/orders/8c1b5cc4-b4b9-4271-a01e-ac84b83e538b",
+      "orderStatus": "COMPLETED",
+      "paymentMethods": [
+        {
+          "externalId": null,
+          "type": "GIFT_CARD",
+          "brand": "AMEX",
+          "lastFour": "7619",
+          "transactionAmount": 135.29
+        }
+      ],
+      "price": {
+        "subTotal": 118.31,
+        "adjustments": [
+          {
+            "type": "TAX",
+            "label": "Tax",
+            "amount": 9.46
+          },
+          {
+            "type": "TIP",
+            "label": "Tip",
+            "amount": 4.53
+          },
+          {
+            "type": "FEE",
+            "label": "Service Fee",
+            "amount": 2.99
+          }
+        ],
+        "total": 135.29,
+        "currency": "USD"
+      },
+      "products": [
+        {
+          "externalId": "93a89dbf-cba4-44e6-a354-52e039aa2cf8",
+          "name": "Medium Vanilla Shake",
+          "url": null,
+          "quantity": 3,
+          "price": 33.54,
+          "eligibility": null
+        },
+        {
+          "externalId": "e123b33a-9445-4c1a-97f5-0a2b4081b300",
+          "name": "Burrito Bowl",
+          "url": null,
+          "quantity": 3,
+          "price": 56.85,
+          "eligibility": null
+        },
+        {
+          "externalId": "44a9c0c6-104e-406a-bc1d-25d679c6874c",
+          "name": "Essentia Ionized Alkaline Water, 33.8 Oz",
+          "url": null,
+          "quantity": 3,
+          "price": 20.94,
+          "eligibility": null
+        },
+        {
+          "externalId": "f035d4a3-4826-4fb9-9cb3-f5e5a0b36d05",
+          "name": "Essentia Ionized Alkaline Water, 33.8 Oz",
+          "url": null,
+          "quantity": 1,
+          "price": 6.98,
+          "eligibility": null
+        }
+      ]
+    },
+    {
+      "externalId": "synthetic-4",
+      "dateTime": "1754967375340",
+      "url": "https://www.ubereats.com/orders/5216f3b1-d1c8-4162-ac0a-051b72c5a475",
+      "orderStatus": "COMPLETED",
+      "paymentMethods": [
+        {
+          "externalId": null,
+          "type": "GIFT_CARD",
+          "brand": null,
+          "lastFour": "3556",
+          "transactionAmount": 98.86
+        }
+      ],
+      "price": {
+        "subTotal": 84.96,
+        "adjustments": [
+          {
+            "type": "TAX",
+            "label": "Tax",
+            "amount": 6.8
+          },
+          {
+            "type": "TIP",
+            "label": "Tip",
+            "amount": 4.11
+          },
+          {
+            "type": "FEE",
+            "label": "Service Fee",
+            "amount": 2.99
+          }
+        ],
+        "total": 98.86,
+        "currency": "USD"
+      },
+      "products": [
+        {
+          "externalId": "93a89dbf-cba4-44e6-a354-52e039aa2cf8",
+          "name": "Medium Vanilla Shake",
+          "url": null,
+          "quantity": 2,
+          "price": 22.36,
+          "eligibility": null
+        },
+        {
+          "externalId": "62b8b723-29fa-484b-b647-6aa9a50fee1c",
+          "name": "10 pc. Chicken McNuggets\u00ae Meal",
+          "url": null,
+          "quantity": 3,
+          "price": 37.77,
+          "eligibility": null
+        },
+        {
+          "externalId": "3262deed-d4ae-4613-8fee-785eb82682f0",
+          "name": "Dirty Dr Pepper\u00ae",
+          "url": null,
+          "quantity": 1,
+          "price": 3.89,
+          "eligibility": null
+        },
+        {
+          "externalId": "44a9c0c6-104e-406a-bc1d-25d679c6874c",
+          "name": "Essentia Ionized Alkaline Water, 33.8 Oz",
+          "url": null,
+          "quantity": 3,
+          "price": 20.94,
+          "eligibility": null
+        }
+      ]
+    },
+    {
+      "externalId": "synthetic-5",
+      "dateTime": "1735098975340",
+      "url": "https://www.ubereats.com/orders/da2d4ca2-a0b8-461a-8e75-58d11a752079",
+      "orderStatus": "COMPLETED",
+      "paymentMethods": [
+        {
+          "externalId": null,
+          "type": "GIFT_CARD",
+          "brand": "MASTERCARD",
+          "lastFour": "9365",
+          "transactionAmount": 164.27
+        }
+      ],
+      "price": {
+        "subTotal": 143.28,
+        "adjustments": [
+          {
+            "type": "TAX",
+            "label": "Tax",
+            "amount": 11.46
+          },
+          {
+            "type": "TIP",
+            "label": "Tip",
+            "amount": 6.54
+          },
+          {
+            "type": "FEE",
+            "label": "Service Fee",
+            "amount": 2.99
+          }
+        ],
+        "total": 164.27,
+        "currency": "USD"
+      },
+      "products": [
+        {
+          "externalId": "0107ea0a-8ae1-4509-b734-01f85df62ed7",
+          "name": "Pad Thai",
+          "url": null,
+          "quantity": 4,
+          "price": 119.6,
+          "eligibility": null
+        },
+        {
+          "externalId": "f7eb0862-663b-4a85-913b-dcf249e476f0",
+          "name": "Thai Fried Rice",
+          "url": null,
+          "quantity": 1,
+          "price": 23.68,
+          "eligibility": null
         }
       ]
     }
@@ -94,6 +395,26 @@ export async function POST(request: Request) {
           const orderDate = new Date(timestamp);
           console.log(`📅 Parsed date: ${orderDate.toISOString()}`);
 
+          // Detect restaurant from products
+          const restaurantInfo = detectRestaurant(transaction.products);
+          console.log(`🍽️ Detected restaurant: ${restaurantInfo.name} (${restaurantInfo.cuisineType}) - confidence: ${restaurantInfo.confidence}`);
+
+          // Find or create restaurant
+          let restaurant = await prisma.restaurant.findUnique({
+            where: { name: restaurantInfo.name }
+          });
+
+          if (!restaurant) {
+            restaurant = await prisma.restaurant.create({
+              data: {
+                name: restaurantInfo.name,
+                cuisineType: restaurantInfo.cuisineType,
+                merchantId: merchantId
+              }
+            });
+            console.log(`🆕 Created new restaurant: ${restaurant.name}`);
+          }
+
           // Create new order from transaction data
           const newOrder = await prisma.order.create({
             data: {
@@ -104,6 +425,7 @@ export async function POST(request: Request) {
               subTotal: parseFloat(transaction.price?.subTotal?.toString() || '0'),
               total: parseFloat(transaction.price?.total?.toString() || '0'),
               currency: transaction.price?.currency || 'USD',
+              restaurantId: restaurant.id,
             },
           });
 
@@ -230,6 +552,7 @@ export async function POST(request: Request) {
       merchantId,
       merchantName,
       userId,
+      restaurantsCreated: await prisma.restaurant.count(),
     });
 
   } catch (error) {

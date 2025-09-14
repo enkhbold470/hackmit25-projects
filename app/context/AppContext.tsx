@@ -2,15 +2,33 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
+export interface Product {
+  id: string;
+  externalId: string;
+  name: string;
+  quantity: number;
+  price: number;
+  unitPrice: number;
+}
+
+export interface Restaurant {
+  id: string;
+  name: string;
+  cuisineType?: string;
+  merchantId?: number;
+}
+
 export interface Transaction {
   id: string;
   restaurant: string;
+  restaurantInfo?: Restaurant;
   amount: number;
   date: Date;
   merchantId?: number;
   merchantName?: string;
   externalId?: string;
   status?: string;
+  products?: Product[];
 }
 
 export interface TeamMember {

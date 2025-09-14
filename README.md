@@ -1,36 +1,269 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+### Takeout Titan: A Transactionally-Coupled Ludic PWA
 
-## Getting Started
+An open-source, Next.js 15 application that conjoins financial telemetry with a gamified health heuristic. Orders synchronized from third‑party delivery merchants (e.g., DoorDash and UberEats via KnotAPI) are transmuted into in‑game debuffs, orchestrating a systemic feedback loop between real‑world consumption and diegetic character vitality.
 
-First, run the development server:
+— Engineered with Next.js App Router, Prisma ORM (PostgreSQL), and progressive web app affordances. 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+### Demonstration (Embedded)
+
+<!-- HTML embed for environments that render iframes -->
+<div align="center">
+  <iframe 
+    width="720"
+    height="405"
+    src="https://www.youtube-nocookie.com/embed/Xz8ibsBlznA" 
+    title="Demo Video"
+    frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    referrerpolicy="strict-origin-when-cross-origin" 
+    allowfullscreen
+  ></iframe>
+</div>
+
+<!-- Fallback link + thumbnail for GitHub and markdown-only renderers -->
+<div align="center">
+  <a href="https://youtu.be/Xz8ibsBlznA?si=TUwt-McaKTNT47Po">
+    <img src="public/base.png" alt="Click to view demo video" width="600" />
+  </a>
+</div>
+
+---
+
+### Gallery
+
+<p align="center">
+  <img src="public/imgs/01-neutral.png" alt="Neutral state" width="120" />
+  <img src="public/imgs/01-powered.png" alt="Powered state" width="120" />
+  <img src="public/imgs/01-weakened.png" alt="Weakened state" width="120" />
+</p>
+
+<p align="center">
+  <img src="public/doordash-logo.jpeg" alt="DoorDash" width="220" />
+  <img src="public/ubereats-logo.jpeg" alt="UberEats" width="220" />
+  <img src="public/boss-imgs/1.png" alt="Boss encounter" width="220" />
+</p>
+
+---
+
+### Table of Contents
+
+- Architecture Overview
+- Data Model (ERD)
+- Environment and Configuration
+- Local Development Workflow
+- Database Migrations and Seeding
+- API Reference
+- PWA Considerations
+- Contributing Guide
+- Security Posture
+- License
+
+---
+
+### Architecture Overview
+
+This application operationalizes a reactive pipeline whereby exogenous transactional ingress, mediated by KnotAPI, is normalized into a domain‑specific ontology and persisted through Prisma into PostgreSQL. The UI is rendered via Next.js App Router with serverless route handlers, while a PWA service worker confers offline semantics and caching determinism.
+
+```mermaid
+graph TD
+  A[User Agent (PWA/Next.js 15)] --> B[/App Router UI/]
+  B --> C{{API Routes (Edge/Node)}}
+  C --> D[KnotAPI (Transactions, Sessions)]
+  C --> E[Prisma Client]
+  E --> F[(PostgreSQL)]
+  C --> G[Game Logic (Character, Team, Quest)]
+  G --> E
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- UI: App Router components in `app/` compose the ludic state machine into a consumable interface.
+- API: Route handlers in `app/api/**` provide JSON endpoints for synchronization, queries, and state mutation.
+- Persistence: Prisma schema codifies relational invariants and referential integrity.
+- Integration: KnotAPI ingress hydrates `Order`, `Product`, `PriceAdjustment`, and `PaymentMethod` aggregates.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Data Model (ERD)
 
-## Learn More
+```mermaid
+erDiagram
+  User ||--o{ CharacterState : has
+  User ||--o{ TeamMember : participates
+  Team ||--o{ TeamMember : aggregates
+  Team ||--o| Quest : undertakes
+  User ||--o{ GameMessage : receives
+  Restaurant ||--o{ Order : fulfills
+  Order ||--o{ OrderProduct : contains
+  Product ||--o{ OrderProduct : referenced
+  Order ||--o{ PaymentMethod : settles
+  Order ||--o{ PriceAdjustment : adjusts
+  Product ||--o{ ProductEligibility : qualifies
+  Transaction }
+```
 
-To learn more about Next.js, take a look at the following resources:
+Key entities are defined in `prisma/schema.prisma`, including `Order`, `Product`, `Restaurant`, `User`, `CharacterState`, `Team`, `Quest`, and `GameMessage`, each with strongly typed fields and cardinalities.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Environment and Configuration
 
-## Deploy on Vercel
+The runtime expects a Postgres endpoint and KnotAPI credentials. Non‑public secrets MUST NOT be prefixed with `NEXT_PUBLIC_`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Required environment variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `DATABASE_URL` — PostgreSQL connection string
+- `KNOT_CLIENT_ID` — KnotAPI credential
+- `KNOT_SECRET` — KnotAPI credential
+- `NEXT_PUBLIC_KNOT_CLIENT_ID` — optional client‑side echo for UI elements
+
+PWA is enabled via `next-pwa` with `register` and `skipWaiting`. The service worker is emitted to `public/`.
+
+---
+
+### Local Development Workflow
+
+Prerequisites:
+
+- Node.js ≥ 18.18
+- pnpm, yarn, npm, or bun
+- PostgreSQL instance
+
+Install and bootstrap:
+
+```bash
+pnpm install
+pnpm prisma generate
+```
+
+Run the development server:
+
+```bash
+pnpm dev
+```
+
+Open http://localhost:3000 and iterate. Primary composition root is `app/page.tsx`; global styles in `app/globals.css`.
+
+---
+
+### Database Migrations and Seeding
+
+Apply migrations and generate client:
+
+```bash
+pnpm prisma migrate dev
+pnpm prisma generate
+```
+
+Seed game scaffolding (characters, team, quest, messages, transactions):
+
+```bash
+node seed-game.js
+```
+
+Ingest historical delivery orders (DoorDash JSON expected at `./Development_DoorDash.json`):
+
+```bash
+# Note: seed.js uses ESM-style imports. If your Node runtime is CJS, either run Node in ESM mode or adapt the file.
+node --experimental-modules seed.js
+```
+
+---
+
+### API Reference
+
+All endpoints are under the App Router namespace `app/api/**`.
+
+- POST `/api` — Synchronize transactions from KnotAPI into the local domain.
+  - body: `{ userId: string, merchantId?: number }`
+  - side‑effects: persists Orders/Products/Adjustments/Payments; mutates `CharacterState`, `TeamMember`, and `Team` power; emits `GameMessage`.
+
+- POST `/api/knot/session` — Materialize a KnotAPI session for a user/merchant tuple.
+  - body: `{ merchantId: number, userId: string, timestamp?: number, requestId?: string }`
+
+- GET `/api/transactions` — Enumerate recent orders (optionally user‑scoped).
+  - query: `userId?: string, limit?: number`
+  - returns normalized transaction façade including inferred merchant taxonomy and product lines.
+
+- POST `/api/transactions` — Append a synthetic transaction and propagate game consequences.
+  - body: `{ userId: string, restaurant: string, amount: number }`
+
+- GET/PUT/POST `/api/quest` — Retrieve, mutate, or instantiate quests, optionally binding teams.
+  - GET query: `questId?: string, teamId?: string`
+  - PUT query: `questId: string`
+  - POST body: `{ name?: string, endDate: string | number, teamId?: string }`
+
+- GET/PUT/POST `/api/team` — Fetch, update, or create teams.
+  - GET query: `teamId: string`
+  - PUT query: `teamId: string`; body: `{ power?: number, memberUpdates?: { userId: string, status: string }[], questUpdates?: any }`
+  - POST body: `{ name: string, userIds?: string[], questEndDate?: string | number }`
+
+- GET/PUT/POST `/api/character` — Manage character state or create a character + state atomically.
+  - GET/PUT query: `userId: string`
+  - POST body: `{ name: string, avatar?: string, health?: number, status?: 'powered'|'neutral'|'weakened', streak?: number }`
+
+- GET/POST/DELETE `/api/messages` — Retrieve, create, or purge user messages.
+  - GET query: `userId: string, limit?: number`
+  - POST body: `{ userId: string, message: string, type?: 'success'|'warning'|'info' }`
+
+- POST `/api/test-sync` — Deterministic UberEats fixture import for diagnostics.
+  - body: `{ userId?: string }`
+
+---
+
+### PWA Considerations
+
+- Service worker emitted via `next-pwa` with `register` and `skipWaiting` enabled for deterministic updates.
+- Manifest at `public/site.webmanifest`; application icons in `public/` (e.g., `android-chrome-512x512.png`).
+- Prefer idempotent APIs and cache versioning semantics to avoid stale UI.
+
+---
+
+### Contributing Guide
+
+We welcome contributory interventions of a sophisticated nature:
+
+1. Fork and create a feature branch with a descriptive, imperative mood.
+2. Maintain referential transparency and type‑soundness; avoid leaky abstractions.
+3. Provide unitary edits with comprehensive commit messages and rationale.
+4. Add or update tests and documentation commensurate with the surface area.
+5. Open a pull request; expect code review with an emphasis on semantics and invariants.
+
+---
+
+### Security Posture
+
+- Do not exfiltrate `KNOT_SECRET` or `KNOT_CLIENT_ID` to the client. Only variables prefixed with `NEXT_PUBLIC_` are exposed.
+- Rotate credentials and prefer least‑privilege principles across environments.
+- Treat imported third‑party data as untrusted; validate and sanitize rigorously.
+
+---
+
+### License
+
+This repository is intended for open‑source dissemination. If a `LICENSE` file is absent, we recommend adopting MIT to maximize permissibility while preserving attribution. Contributors agree to dual licensing under the chosen regime upon merge.
+
+---
+
+### Appendix: Quickstart
+
+```bash
+# Install
+pnpm install
+
+# Configure env (.env)
+export DATABASE_URL=postgres://user:pass@localhost:5432/db
+export KNOT_CLIENT_ID=...
+export KNOT_SECRET=...
+export NEXT_PUBLIC_KNOT_CLIENT_ID=...
+
+# DB
+pnpm prisma migrate dev && pnpm prisma generate
+
+# Seed
+node seed-game.js
+
+# Dev
+pnpm dev
+```
+

@@ -66,7 +66,7 @@ function DailyMessagesCard({ messages }: { messages: MessageItem[] }) {
             <div className="flex-1">
               <p className="text-sm text-foreground">{message.message}</p>
               <p className="text-xs text-gray-500 mt-1">
-                {message.timestamp.toLocaleDateString()}
+                {new Date(message.timestamp).toLocaleDateString()}
               </p>
             </div>
           </div>

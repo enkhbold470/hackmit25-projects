@@ -99,3 +99,73 @@ model Transaction {
   source    String
   timestamp DateTime @default(now())
 }
+
+// Game-specific models
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  avatar    String   @default("😊")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  characterState CharacterState?
+  teamMemberships TeamMember[]
+  messages       GameMessage[]
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  questId   String?  @unique
+  power     Int      @default(78)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quest    Quest?      @relation(fields: [questId], references: [id])
+  members  TeamMember[]
+}
+
+model TeamMember {
+  id     String @id @default(uuid())
+  userId String
+  teamId String
+  status String @default("neutral") // powered, neutral, weakened
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
+
+model Quest {
+  id        String   @id @default(uuid())
+  name      String   @default("Defeat the Takeout Titan")
+  startDate DateTime @default(now())
+  endDate   DateTime
+  status    String   @default("active") // active, completed
+  result    String?  // victory, defeat
+  createdAt DateTime @default(now())
+
+  team Team?
+}
+
+model CharacterState {
+  id       String @id @default(uuid())
+  userId   String @unique
+  health   Int    @default(85)
+  status   String @default("neutral") // powered, neutral, weakened
+  streak   Int    @default(3)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GameMessage {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  type      String   // success, warning, info
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

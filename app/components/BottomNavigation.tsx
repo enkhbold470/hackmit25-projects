@@ -13,7 +13,7 @@ function TabButton({ icon, label, isActive, onClick }: TabButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center py-2 px-3 min-h-[60px] transition-colors ${
+      className={`flex flex-col items-center justify-center py-2 px-3 min-h-[60px] transition-colors cursor-pointer transform transition-transform duration-200 hover:scale-110 ${
         isActive
           ? 'text-primary'
           : 'text-gray-500 hover:text-foreground'

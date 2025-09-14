@@ -10,11 +10,20 @@ interface CharacterStatusCardProps {
 
 function CharacterStatusCard({ characterState, health }: CharacterStatusCardProps) {
   const getCharacterEmoji = () => {
-    switch (characterState) {
-      case 'powered': return '💪✨';
-      case 'weakened': return '😵‍💫';
-      default: return '😊';
+    const validStates = ['powered', 'neutral', 'weakened'];
+    if (validStates.includes(characterState)) {
+      return (
+        <img
+          src={`/imgs/01-${characterState}.png`}
+          alt={`${characterState.charAt(0).toUpperCase() + characterState.slice(1)} Character`}
+          className="mx-auto"
+          width={150}
+          height={150}
+        />
+      );
     }
+    // fallback
+    return <img src="/imgs/01-neutral.png" alt="Neutral Character" className="mx-auto" width={150} height={150} />;
   };
 
   const getHealthColor = () => {

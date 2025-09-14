@@ -54,12 +54,7 @@ function TransactionItem({ transaction }: TransactionItemProps) {
             {transaction.restaurant}
           </h4>
           <p className="text-sm text-gray-500">
-            {new Date(transaction.date).toLocaleDateString("en-US", {
-              weekday: "short",
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })}
+            {new Date(transaction.date).toLocaleDateString().slice(0, 10)}
           </p>
         </div>
         <div className="text-right">

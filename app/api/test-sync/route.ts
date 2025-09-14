@@ -532,13 +532,14 @@ export async function POST(request: Request) {
           },
         });
 
-        await prisma.gameMessage.create({
-          data: {
-            userId,
-            message: `${storedCount} test transactions synced from ${merchantName}. Character weakened!`,
-            type: 'warning',
-          },
-        });
+        // Skip creating user-facing messages for test sync - this is a debug endpoint
+        // await prisma.gameMessage.create({
+        //   data: {
+        //     userId,
+        //     message: `${storedCount} test transactions synced from ${merchantName}. Character weakened!`,
+        //     type: 'warning',
+        //   },
+        // });
 
         console.log(`🎮 Updated character: health=${newHealth}, status=${newHealth < 50 ? 'weakened' : 'neutral'}`);
       }

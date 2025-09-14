@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import { useApp, Transaction } from '../../context/AppContext';
-import { useState, useEffect } from 'react';
-import { Truck } from 'lucide-react';
-import KnotapiJS from 'knotapi-js';
+import { useApp, Transaction } from "../../context/AppContext";
+import { useState, useEffect } from "react";
+import KnotapiJS from "knotapi-js";
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -18,11 +17,11 @@ function TransactionItem({ transaction }: TransactionItemProps) {
             {transaction.restaurant}
           </h4>
           <p className="text-sm text-gray-500">
-            {transaction.date.toLocaleDateString('en-US', {
-              weekday: 'short',
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
+            {transaction.date.toLocaleDateString("en-US", {
+              weekday: "short",
+              year: "numeric",
+              month: "short",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -40,18 +39,20 @@ export default function TransactionsTab() {
   const { state, userId, refreshData } = useApp();
   const { transactions } = state;
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [knotapi, setKnotapi] = useState<KnotapiJS | null>(null);   
+  const [knotapi, setKnotapi] = useState<KnotapiJS | null>(null);
 
   const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('knotapi-js').then((KnotapiJS) => {
-        const knotapiInstance = new KnotapiJS.default();
-        setKnotapi(knotapiInstance);
-      }).catch((error) => {
-        console.error('Failed to load KnotAPI SDK:', error);
-      });
+    if (typeof window !== "undefined") {
+      import("knotapi-js")
+        .then((KnotapiJS) => {
+          const knotapiInstance = new KnotapiJS.default();
+          setKnotapi(knotapiInstance);
+        })
+        .catch((error) => {
+          console.error("Failed to load KnotAPI SDK:", error);
+        });
     }
   }, []);
 
@@ -61,43 +62,47 @@ export default function TransactionsTab() {
     setIsConnecting(merchantName);
 
     try {
-      const sessionResponse = await fetch('/api/knot/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchantId, userId })
+      const sessionResponse = await fetch("/api/knot/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantId, userId }),
       });
 
       if (!sessionResponse.ok) {
         const errorData = await sessionResponse.json();
-        console.error('Session creation error:', errorData);
-        throw new Error(`Failed to create session: ${errorData.error || 'Unknown error'}`);
+        console.error("Session creation error:", errorData);
+        throw new Error(
+          `Failed to create session: ${errorData.error || "Unknown error"}`
+        );
       }
 
       const { sessionId } = await sessionResponse.json();
 
-      const clientId = process.env.NEXT_PUBLIC_KNOT_CLIENT_ID || '';
-      console.log('Frontend client ID:', clientId);
+      const clientId = process.env.NEXT_PUBLIC_KNOT_CLIENT_ID || "";
+      console.log("Frontend client ID:", clientId);
 
       if (!clientId) {
-        throw new Error('NEXT_PUBLIC_KNOT_CLIENT_ID environment variable not set');
+        throw new Error(
+          "NEXT_PUBLIC_KNOT_CLIENT_ID environment variable not set"
+        );
       }
 
       knotapi.open({
         sessionId,
         clientId,
-        environment: 'development',
-        product: 'transaction_link',
+        environment: "development",
+        product: "transaction_link",
         merchantIds: [merchantId],
-        entryPoint: 'transactions_tab',
+        entryPoint: "transactions_tab",
         useCategories: false,
         useSearch: false,
         onSuccess: async (product: string, merchant: string) => {
-          console.log('Authentication successful:', merchant);
+          console.log("Authentication successful:", merchant);
 
-          const syncResponse = await fetch('/api', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, product })
+          const syncResponse = await fetch("/api", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId, product }),
           });
 
           if (syncResponse.ok) {
@@ -107,15 +112,15 @@ export default function TransactionsTab() {
           setIsConnecting(null);
         },
         onError: (_product: string, errorCode: string, message: string) => {
-          console.error('KnotAPI Error:', errorCode, message);
+          console.error("KnotAPI Error:", errorCode, message);
           setIsConnecting(null);
         },
         onExit: () => {
           setIsConnecting(null);
-        }
+        },
       });
     } catch (error) {
-      console.error('Error connecting to merchant:', error);
+      console.error("Error connecting to merchant:", error);
       setIsConnecting(null);
     }
   };
@@ -125,34 +130,44 @@ export default function TransactionsTab() {
       <div className="mb-6">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Transactions</h2>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              Transactions
+            </h2>
             <p className="text-gray-600 text-sm">
               Your food delivery orders during this quest
             </p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => connectMerchant(19, 'DoorDash')}
+              onClick={() => connectMerchant(19, "DoorDash")}
               disabled={isConnecting !== null}
-              className="flex items-center justify-center w-12 h-12 rounded-xl bg-red-500 hover:bg-red-600 disabled:bg-gray-300 transition-colors shadow-sm"
+              className="flex items-center justify-center w-12 h-12 rounded-xl bg-white hover:bg-gray-50 disabled:bg-gray-300 transition-colors shadow-sm border border-gray-200"
               title="Connect DoorDash"
             >
-              {isConnecting === 'DoorDash' ? (
+              {isConnecting === "DoorDash" ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <Truck className="w-6 h-6 text-white" />
+                <img
+                  src="/doordash-logo.jpeg"
+                  alt="DoorDash"
+                  className="w-full h-full object-cover rounded-xl"
+                />
               )}
             </button>
             <button
-              onClick={() => connectMerchant(36, 'UberEats')}
+              onClick={() => connectMerchant(36, "UberEats")}
               disabled={isConnecting !== null}
-              className="flex items-center justify-center w-12 h-12 rounded-xl bg-black hover:bg-gray-800 disabled:bg-gray-300 transition-colors shadow-sm"
+              className="flex items-center justify-center w-12 h-12 rounded-xl bg-white hover:bg-gray-50 disabled:bg-gray-300 transition-colors shadow-sm border border-gray-200"
               title="Connect Uber Eats"
             >
-              {isConnecting === 'UberEats' ? (
+              {isConnecting === "UberEats" ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <span className="text-white font-bold text-lg">U</span>
+                <img
+                  src="/ubereats-logo.jpeg"
+                  alt="Uber Eats"
+                  className="w-full h-full object-cover rounded-xl"
+                />
               )}
             </button>
           </div>
@@ -182,7 +197,8 @@ export default function TransactionsTab() {
               No Transactions Yet!
             </h3>
             <p className="text-gray-600">
-              You haven&apos;t ordered any food delivery during this quest. Keep it up!
+              You haven&apos;t ordered any food delivery during this quest. Keep
+              it up!
             </p>
           </div>
         )}

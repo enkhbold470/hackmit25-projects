@@ -3,7 +3,7 @@ import "./globals.css";
 import { AppProvider } from "./context/AppContext";
 
 export const metadata: Metadata = {
-  title: "SkiPit",
+  title: "SkipIt",
   description: "Gamify reducing unnecessary Doordash or unhealthy food orders",
   manifest: "/site.webmanifest",
 };

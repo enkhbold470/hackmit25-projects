@@ -1,7 +1,7 @@
 {
-    "name": "SkiPit",
-    "short_name": "SkiPit - Reduce unnecessary Doordash or unhealthy food orders",
-    "description": "SkiPit is a app, where you can reduce unnecessary Doordash or unhealthy food orders.",
+    "name": "SkipIt",
+    "short_name": "SkipIt - Reduce unnecessary Doordash or unhealthy food orders",
+    "description": "SkipIt is a app, where you can reduce unnecessary Doordash or unhealthy food orders.",
     "start_url": "/",
     "icons": [
         {

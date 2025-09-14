@@ -7,6 +7,10 @@ export interface Transaction {
   restaurant: string;
   amount: number;
   date: Date;
+  merchantId?: number;
+  merchantName?: string;
+  externalId?: string;
+  status?: string;
 }
 
 export interface TeamMember {

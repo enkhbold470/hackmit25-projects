@@ -26,7 +26,30 @@ export async function GET(request: Request) {
 
       const formattedTransactions = orders.map(order => {
         // Get restaurant name from the first product (simplified approach)
-        const restaurant = order.orderProducts[0]?.product.name.split(' ')[0] || 'Unknown Restaurant';
+        const firstProduct = order.orderProducts[0]?.product;
+        const restaurant = firstProduct ? firstProduct.name.split(' - ')[0] || firstProduct.name.split(' ')[0] || 'Unknown Restaurant' : 'Unknown Restaurant';
+
+        // Determine merchant based on URL pattern and order data
+        let merchantId = null;
+        let merchantName = 'Unknown';
+
+        // Check URL patterns first for most reliable detection
+        if (order.url.includes('doordash.com')) {
+          merchantId = 19;
+          merchantName = 'DoorDash';
+        } else if (order.url.includes('ubereats.com')) {
+          merchantId = 36;
+          merchantName = 'UberEats';
+        } else if (firstProduct) {
+          // Fallback to product name patterns
+          if (firstProduct.name.toLowerCase().includes('doordash') || firstProduct.url.includes('doordash')) {
+            merchantId = 19;
+            merchantName = 'DoorDash';
+          } else if (firstProduct.name.toLowerCase().includes('uber') || firstProduct.url.includes('uber')) {
+            merchantId = 36;
+            merchantName = 'UberEats';
+          }
+        }
 
         return {
           id: order.id,
@@ -35,6 +58,8 @@ export async function GET(request: Request) {
           date: order.dateTime,
           status: order.orderStatus,
           externalId: order.externalId,
+          merchantId,
+          merchantName,
         };
       });
 

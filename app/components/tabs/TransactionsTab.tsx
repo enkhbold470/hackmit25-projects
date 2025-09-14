@@ -155,7 +155,7 @@ export default function TransactionsTab() {
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
   const [lastConnectionAttempt, setLastConnectionAttempt] = useState<number>(0);
 
-  const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const totalAmount = transactions?.reduce((sum, t) => sum + t.amount, 0) || 0;
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -413,7 +413,7 @@ export default function TransactionsTab() {
         </div>
       </div>
 
-      {transactions.length > 0 && (
+      {transactions && transactions.length > 0 && (
         <div className="bg-primary/10 rounded-xl p-4 mb-6 border border-primary/20">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-1">Total Spent This Quest</p>
@@ -425,7 +425,7 @@ export default function TransactionsTab() {
       )}
 
       <div className="space-y-3">
-        {transactions.length > 0 ? (
+        {transactions && transactions.length > 0 ? (
           transactions.map((transaction) => (
             <TransactionItem key={transaction.id} transaction={transaction} />
           ))

@@ -168,7 +168,7 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
       <div className="text-center">
         <h4 className="text-lg font-semibold text-foreground mb-4">Your Team</h4>
         <div className="flex justify-center gap-4 flex-wrap">
-          {members.map((member) => (
+          {members?.map((member) => (
             <div key={member.id} className="text-center">
               <div className={`mb-2 transition-all ${getCharacterClass(member.status)}`}>
                 <Image

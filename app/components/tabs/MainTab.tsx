@@ -69,7 +69,7 @@ function DailyMessagesCard({ messages }: { messages: MessageItem[] }) {
     <div className="bg-card rounded-2xl p-4 mb-4 shadow-sm">
       <h3 className="font-semibold text-lg mb-3">Daily Messages</h3>
       <div className="space-y-3 max-h-48 overflow-y-auto">
-        {messages.map((message) => (
+        {messages?.map((message) => (
           <div key={message.id} className="flex items-start gap-3 p-2 rounded-lg bg-gray-50">
             <span className="text-lg">{getMessageIcon(message.type)}</span>
             <div className="flex-1">
@@ -149,7 +149,7 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
       </div>
 
       <div className="flex justify-center gap-2 mb-4 flex-wrap">
-        {members.map((member) => (
+        {members?.map((member) => (
           <div
             key={member.id}
             className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-lg transition-all ${getStatusColor(member.status)}`}
@@ -178,7 +178,9 @@ function TeamStatusCard({ members, teamPower }: TeamStatusCardProps) {
 export default function MainTab() {
   const { state } = useApp();
 
-  const daysRemaining = Math.ceil((state.questEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const daysRemaining = (state.questEndDate && !isNaN(state.questEndDate.getTime()))
+    ? Math.ceil((state.questEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : 0;
   const progress = Math.max(0, Math.min(100, ((20 - daysRemaining) / 20) * 100)); // Assuming 20-day quest
 
   return (

@@ -50,13 +50,6 @@ export default function UserTab() {
 
   return (
     <div className="p-4 pb-20">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">Account</h2>
-        <p className="text-gray-600 text-sm">
-          Manage your FoodApp settings and account
-        </p>
-      </div>
-
       {/* User Profile Summary */}
       <div className="bg-card rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
         <div className="text-center">

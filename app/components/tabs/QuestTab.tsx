@@ -176,17 +176,6 @@ export default function QuestTab() {
 
   return (
     <div className="p-4 pb-20">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2 text-center">
-          The Quest
-        </h2>
-        <p className="text-gray-600 text-sm text-center">
-          Face the Takeout Titan with your team
-        </p>
-      </div>
-
-     
-
       <BattleScene
         members={teamMembers}
         isQuestComplete={isQuestComplete}
@@ -194,7 +183,7 @@ export default function QuestTab() {
       />
 
  {!isQuestComplete && (
-        <CountdownTimer endDate={new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)} />
+        <CountdownTimer endDate={new Date(Date.now() + 12.3 * 24 * 60 * 60 * 1000)} />
       )}
       {!isQuestComplete && (
         <div className="mt-6 bg-primary/10 rounded-xl p-4 border border-primary/20">

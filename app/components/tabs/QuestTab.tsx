@@ -170,8 +170,14 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
         <div className="flex justify-center gap-4 flex-wrap">
           {members.map((member) => (
             <div key={member.id} className="text-center">
-              <div className={`text-4xl mb-2 transition-all ${getCharacterClass(member.status)}`}>
-                {member.avatar}
+              <div className={`mb-2 transition-all ${getCharacterClass(member.status)}`}>
+                <Image
+                  src={`/imgs/01-${member.status}.png`}
+                  alt={`${member.name} - ${member.status}`}
+                  width={60}
+                  height={60}
+                  className="rounded-full mx-auto"
+                />
               </div>
               <p className="text-xs text-gray-600 font-medium">{member.name}</p>
             </div>

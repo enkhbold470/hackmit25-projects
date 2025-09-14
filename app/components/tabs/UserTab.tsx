@@ -43,6 +43,11 @@ export default function UserTab() {
     }
   };
 
+  // Import useApp from context
+  // eslint-disable-next-line
+  // @ts-ignore
+  const { state } = require('../../context/AppContext').useApp();
+
   return (
     <div className="p-4 pb-20">
       <div className="mb-6">
@@ -55,7 +60,15 @@ export default function UserTab() {
       {/* User Profile Summary */}
       <div className="bg-card rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
         <div className="text-center">
-          <div className="text-6xl mb-3">😊</div>
+          <div className="mb-3">
+            <img
+              src={`/imgs/01-${state?.characterStatus || 'neutral'}.png`}
+              alt="User Character"
+              className="mx-auto"
+              width={150}
+              height={150}
+            />
+          </div>
           <h3 className="text-xl font-semibold text-foreground mb-1">Welcome!</h3>
           <p className="text-gray-600 text-sm">Keep fighting the good fight!</p>
         </div>

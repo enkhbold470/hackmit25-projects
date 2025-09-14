@@ -3,9 +3,9 @@ import "./globals.css";
 import { AppProvider } from "./context/AppContext";
 
 export const metadata: Metadata = {
-  title: "FoodApp",
-  description: "Gamify reducing food delivery orders with friends",
-  manifest: "/manifest.json",
+  title: "SkiPit",
+  description: "Gamify reducing unnecessary Doordash or unhealthy food orders",
+  manifest: "/site.webmanifest",
 };
 
 export const viewport = {

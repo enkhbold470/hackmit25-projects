@@ -16,6 +16,7 @@ export async function GET(request: Request) {
         orderBy: { dateTime: 'desc' },
         take: limit,
         include: {
+          restaurant: true,
           orderProducts: {
             include: {
               product: true,
@@ -25,45 +26,57 @@ export async function GET(request: Request) {
       });
 
       const formattedTransactions = orders.map(order => {
-        // Get restaurant name from the first product (simplified approach)
-        const firstProduct = order.orderProducts[0]?.product;
-        const restaurant = firstProduct ? firstProduct.name.split(' - ')[0] || firstProduct.name.split(' ')[0] || 'Unknown Restaurant' : 'Unknown Restaurant';
+        // Use restaurant data if available, otherwise fall back to first product name
+        const restaurant = order.restaurant?.name ||
+          order.orderProducts[0]?.product?.name?.split(' - ')[0] ||
+          'Unknown Restaurant';
 
-        // Determine merchant based on URL pattern and order data
-        let merchantId = null;
+        // Determine merchant based on URL pattern and restaurant data
+        let merchantId = order.restaurant?.merchantId || null;
         let merchantName = 'Unknown';
 
         // Check URL patterns first for most reliable detection
-        if (order.url.includes('doordash.com')) {
+        if (order.url.includes('doordash.com') || merchantId === 19) {
           merchantId = 19;
           merchantName = 'DoorDash';
-        } else if (order.url.includes('ubereats.com')) {
+        } else if (order.url.includes('ubereats.com') || merchantId === 36) {
           merchantId = 36;
           merchantName = 'UberEats';
-        } else if (firstProduct) {
-          // Fallback to product name patterns
-          if (firstProduct.name.toLowerCase().includes('doordash') || firstProduct.url.includes('doordash')) {
-            merchantId = 19;
-            merchantName = 'DoorDash';
-          } else if (firstProduct.name.toLowerCase().includes('uber') || firstProduct.url.includes('uber')) {
-            merchantId = 36;
-            merchantName = 'UberEats';
-          }
         }
+
+        // Format products
+        const products = order.orderProducts.map(op => ({
+          id: op.product.id,
+          externalId: op.product.externalId,
+          name: op.product.name,
+          quantity: op.quantity,
+          price: op.total,
+          unitPrice: op.unitPrice,
+        }));
 
         return {
           id: order.id,
           restaurant,
+          restaurantInfo: order.restaurant ? {
+            id: order.restaurant.id,
+            name: order.restaurant.name,
+            cuisineType: order.restaurant.cuisineType,
+            merchantId: order.restaurant.merchantId,
+          } : undefined,
           amount: order.total,
           date: order.dateTime,
           status: order.orderStatus,
           externalId: order.externalId,
           merchantId,
           merchantName,
+          products,
         };
       });
 
-      return NextResponse.json({ transactions: formattedTransactions });
+      return NextResponse.json({
+        transactions: formattedTransactions,
+        count: formattedTransactions.length
+      });
     }
 
     // General transaction endpoint - return recent orders

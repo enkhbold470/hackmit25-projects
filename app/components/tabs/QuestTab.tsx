@@ -154,7 +154,7 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
       {/* Boss at the top */}
       <div className="text-center mb-8">
         <div className="text-8xl mb-2 animate-pulse">
-          <Image src="/boss-imgs/1.jpg" alt="Takeout Titan" className="mx-auto rounded-full" width={250} height={250} />
+          <Image src="/boss-imgs/1.png" alt="Takeout Titan" className="mx-auto rounded-full" width={250} height={250} />
 
         </div>
         <h3 className="text-xl font-bold text-red-600 mb-1">Takeout Titan</h3>
@@ -220,7 +220,7 @@ export default function QuestTab() {
       />
 
  {!isQuestComplete && (
-        <CountdownTimer endDate={questEndDate} />
+        <CountdownTimer endDate={new Date(Date.now() + 1 * 1 * 60 * 60 * 1000)} />
       )}
       {!isQuestComplete && (
         <div className="mt-6 bg-blue-50 rounded-xl p-4 border border-blue-200">

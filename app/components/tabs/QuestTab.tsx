@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useApp, TeamMember } from '../../context/AppContext';
-
+import Image from 'next/image';
 interface CountdownTimerProps {
   endDate: Date;
 }
@@ -105,7 +105,10 @@ function BattleScene({ members, isQuestComplete, questResult }: BattleSceneProps
     <div className="bg-gradient-to-b from-red-900/20 to-gray-900/20 rounded-2xl p-6 shadow-sm">
       {/* Boss at the top */}
       <div className="text-center mb-8">
-        <div className="text-8xl mb-2 animate-pulse">👹</div>
+        <div className="text-8xl mb-2 animate-pulse">
+          <Image src="/boss-imgs/1.jpg" alt="Takeout Titan" className="mx-auto rounded-full" width={250} height={250} />
+
+        </div>
         <h3 className="text-xl font-bold text-red-600 mb-1">Takeout Titan</h3>
         <p className="text-sm text-gray-600">The Final Boss</p>
       </div>

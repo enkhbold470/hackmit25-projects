@@ -3,6 +3,7 @@
 import { useApp, Transaction } from '../../context/AppContext';
 import { useState, useEffect } from 'react';
 import { Truck } from 'lucide-react';
+import KnotapiJS from 'knotapi-js';
 
 interface KnotAPIConfig {
   sessionId: string;
@@ -13,7 +14,7 @@ interface KnotAPIConfig {
   entryPoint: string;
   useCategories: boolean;
   useSearch: boolean;
-  onSuccess: (product: string, details: { merchantName?: string }) => void;
+  onSuccess: (product: string, merchant: string) => void;
   onError: (product: string, errorCode: string, message: string) => void;
   onExit: () => void;
 }
@@ -53,7 +54,8 @@ export default function TransactionsTab() {
   const { state, userId, refreshData } = useApp();
   const { transactions } = state;
   const [isConnecting, setIsConnecting] = useState<string | null>(null);
-  const [knotapi, setKnotapi] = useState<any>(null);
+  const [knotapi, setKnotapi] = useState<KnotapiJS | null>(null);   
+  const [knotapiConfig, setKnotapiConfig] = useState<KnotAPIConfig | null>(null);   
 
   const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -104,13 +106,13 @@ export default function TransactionsTab() {
         entryPoint: 'transactions_tab',
         useCategories: false,
         useSearch: false,
-        onSuccess: async (_product: string, details: { merchantName?: string }) => {
-          console.log('Authentication successful:', details);
+        onSuccess: async (product: string, merchant: string) => {
+          console.log('Authentication successful:', merchant);
 
-          const syncResponse = await fetch('/api', {
+          const syncResponse = await fetch('/api/knot/sync', {  
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId })
+            body: JSON.stringify({ userId: userId as string, product })   
           });
 
           if (syncResponse.ok) {

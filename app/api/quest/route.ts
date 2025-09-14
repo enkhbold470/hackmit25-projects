@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Quest } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
 
   try {
     const quest = await prisma.quest.findFirst({
-      where: questId ? { id: questId } : { team: { id: teamId } },
+      where: questId ? { id: questId } : { team: { id: teamId as string } },
       include: {
         team: {
           select: {
@@ -86,7 +86,7 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { status, result, endDate } = body;
 
-    const updateData: any = {};
+    const updateData: Partial<Quest> = {};
     if (status !== undefined) updateData.status = status;
     if (result !== undefined) updateData.result = result;
     if (endDate !== undefined) updateData.endDate = new Date(endDate);

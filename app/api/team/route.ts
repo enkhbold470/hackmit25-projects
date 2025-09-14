@@ -72,14 +72,19 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { power, memberUpdates } = body;
+    const { power, memberUpdates, questUpdates } = body;
 
     // Update team power if provided
-    let updatedTeam;
-    if (power !== undefined) {
-      updatedTeam = await prisma.team.update({
-        where: { id: teamId },
-        data: { power },
+    const updatedTeam = await prisma.team.update({
+      where: { id: teamId as string },
+      data: { power  },
+    });
+
+    // Update quest if provided
+    if (questUpdates) {
+      await prisma.quest.update({
+        where: { id: updatedTeam.questId as string },
+        data: questUpdates,
       });
     }
 
@@ -89,8 +94,8 @@ export async function PUT(request: Request) {
         if (update.userId && update.status) {
           await prisma.teamMember.updateMany({
             where: {
-              teamId,
-              userId: update.userId,
+              teamId: teamId as string,
+              userId: update.userId as string,
             },
             data: {
               status: update.status,
@@ -102,7 +107,7 @@ export async function PUT(request: Request) {
 
     // Return updated team data
     const team = await prisma.team.findUnique({
-      where: { id: teamId },
+      where: { id: teamId as string },  
       include: {
         members: {
           include: {

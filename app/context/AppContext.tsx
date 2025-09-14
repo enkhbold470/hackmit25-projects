@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 
 export interface Transaction {
   id: string;
@@ -65,7 +65,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   // Fetch all app data from backend APIs
-  const refreshData = async () => {
+  const refreshData = useCallback(async () => {
     if (!userId || !teamId) return;
 
     try {
@@ -106,12 +106,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, teamId]);
 
   // Load data on component mount
   useEffect(() => {
     refreshData();
-  }, [userId, teamId]);
+  }, [userId, teamId, refreshData]);
 
   const addTransaction = async (restaurant: string, amount: number) => {
     if (!userId) return;

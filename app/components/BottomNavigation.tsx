@@ -34,7 +34,7 @@ interface BottomNavigationProps {
 
 export default function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-2 py-5">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-gray-200 px-2 py-5 z-99">
       <div className="flex justify-around max-w-md mx-auto">
         <TabButton
           icon={<Home size={24} />}

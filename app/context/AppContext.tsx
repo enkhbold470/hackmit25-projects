@@ -73,8 +73,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   // Use the seeded user ID from our database (you might want to make this dynamic in a real app)
-  const [userId] = useState<string>('d8f3c9fb-bc17-4109-aa46-6e3fd8c1a129'); // From seeded data
-  const [teamId] = useState<string>('2b5cf5cf-84a6-4af0-acbf-bf9aca5a2969'); // From seeded data
+  const [userId] = useState<string>('aeadecc6-698f-4ef8-b935-d4ee8722ea2a'); // From seeded data
+  const [teamId] = useState<string>('a85c1858-594b-4aea-a426-ce55097309b5'); // From seeded data
   const [loading, setLoading] = useState(true);
 
   const [state, setState] = useState<AppState>({

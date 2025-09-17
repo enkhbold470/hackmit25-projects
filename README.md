@@ -1,4 +1,4 @@
-### Takeout Titan: A Transactionally-Coupled Ludic PWA
+### SkipIt: A Transactionally-Coupled Ludic
 
 An open-source, Next.js 15 application that conjoins financial telemetry with a gamified health heuristic. Orders synchronized from third‑party delivery merchants (e.g., DoorDash and UberEats via KnotAPI) are transmuted into in‑game debuffs, orchestrating a systemic feedback loop between real‑world consumption and diegetic character vitality.
 
@@ -8,44 +8,21 @@ An open-source, Next.js 15 application that conjoins financial telemetry with a 
 
 ### Demonstration (Embedded)
 
-<!-- HTML embed for environments that render iframes -->
-<div align="center">
-  <iframe 
-    width="720"
-    height="405"
-    src="https://www.youtube-nocookie.com/embed/Xz8ibsBlznA" 
-    title="Demo Video"
-    frameborder="0" 
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-    referrerpolicy="strict-origin-when-cross-origin" 
-    allowfullscreen
-  ></iframe>
-</div>
+<a href="https://www.youtube.com/watch?v=Xz8ibsBlznA">
+  <img src="https://img.youtube.com/vi/Xz8ibsBlznA/maxresdefault.jpg" width="520" height="320" alt="Watch the video">
+</a>
 
-<!-- Fallback link + thumbnail for GitHub and markdown-only renderers -->
-<div align="center">
-  <a href="https://youtu.be/Xz8ibsBlznA?si=TUwt-McaKTNT47Po">
-    <img src="public/base.png" alt="Click to view demo video" width="600" />
-  </a>
-</div>
 
----
 
-### Gallery
 
-<p align="center">
-  <img src="public/imgs/01-neutral.png" alt="Neutral state" width="120" />
-  <img src="public/imgs/01-powered.png" alt="Powered state" width="120" />
-  <img src="public/imgs/01-weakened.png" alt="Weakened state" width="120" />
-</p>
+## Gallery
 
-<p align="center">
-  <img src="public/doordash-logo.jpeg" alt="DoorDash" width="220" />
-  <img src="public/ubereats-logo.jpeg" alt="UberEats" width="220" />
-  <img src="public/boss-imgs/1.png" alt="Boss encounter" width="220" />
-</p>
+| Weakened | Neutral | Powered |
+|----------|---------|---------|
+| ![Weakened state](public/imgs/01-weakened.png) | ![Neutral state](public/imgs/01-neutral.png) | ![Powered state](public/imgs/01-powered.png) |
 
----
+
+
 
 ### Table of Contents
 
@@ -66,16 +43,8 @@ An open-source, Next.js 15 application that conjoins financial telemetry with a 
 
 This application operationalizes a reactive pipeline whereby exogenous transactional ingress, mediated by KnotAPI, is normalized into a domain‑specific ontology and persisted through Prisma into PostgreSQL. The UI is rendered via Next.js App Router with serverless route handlers, while a PWA service worker confers offline semantics and caching determinism.
 
-```mermaid
-graph TD
-  A[User Agent (PWA/Next.js 15)] --> B[/App Router UI/]
-  B --> C{{API Routes (Edge/Node)}}
-  C --> D[KnotAPI (Transactions, Sessions)]
-  C --> E[Prisma Client]
-  E --> F[(PostgreSQL)]
-  C --> G[Game Logic (Character, Team, Quest)]
-  G --> E
-```
+<img width="924" height="854" alt="image" src="https://github.com/user-attachments/assets/489a07d4-c8ec-4d24-8857-42fd478c3277" />
+
 
 - UI: App Router components in `app/` compose the ludic state machine into a consumable interface.
 - API: Route handlers in `app/api/**` provide JSON endpoints for synchronization, queries, and state mutation.
@@ -86,21 +55,8 @@ graph TD
 
 ### Data Model (ERD)
 
-```mermaid
-erDiagram
-  User ||--o{ CharacterState : has
-  User ||--o{ TeamMember : participates
-  Team ||--o{ TeamMember : aggregates
-  Team ||--o| Quest : undertakes
-  User ||--o{ GameMessage : receives
-  Restaurant ||--o{ Order : fulfills
-  Order ||--o{ OrderProduct : contains
-  Product ||--o{ OrderProduct : referenced
-  Order ||--o{ PaymentMethod : settles
-  Order ||--o{ PriceAdjustment : adjusts
-  Product ||--o{ ProductEligibility : qualifies
-  Transaction }
-```
+<img width="3396" height="2210" alt="image" src="https://github.com/user-attachments/assets/99389f35-145e-4a29-9c47-4c04a4b610d9" />
+
 
 Key entities are defined in `prisma/schema.prisma`, including `Order`, `Product`, `Restaurant`, `User`, `CharacterState`, `Team`, `Quest`, and `GameMessage`, each with strongly typed fields and cardinalities.
 
